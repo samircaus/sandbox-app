@@ -1,0 +1,17 @@
+{
+  "name": "sandbox-app",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+  },
+  "dependencies": {
+    "@getcronit/pylon": "^2.9.6",
+    "hono": "^4.10.5"
+  },
+  "devDependencies": {
+    "@getcronit/pylon-dev": "^1.0.6",
+    "wrangler": "^4.47.0"
+  }
+}

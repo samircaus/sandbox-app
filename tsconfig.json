@@ -1,0 +1,16 @@
+{
+  "extends": "@getcronit/pylon/tsconfig.pylon.json",
+  "include": ["pylon.d.ts", "src/**/*.ts"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ESNext"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx"
+  },
+}
