@@ -254,6 +254,19 @@ app.get('/graphql-playground', (c) => {
           display: inline-block;
           font-weight: 600;
         }
+        .server-url-input {
+          width: 100%;
+          padding: 10px 12px;
+          border: 2px solid #ddd;
+          border-radius: 4px;
+          font-family: monospace;
+          font-size: 14px;
+          transition: border-color 0.2s;
+        }
+        .server-url-input:focus {
+          outline: none;
+          border-color: #0066cc;
+        }
       </style>
     </head>
     <body>
@@ -274,7 +287,10 @@ app.get('/graphql-playground', (c) => {
             <div class="card">
               <div class="info-section">
                 <strong>GraphQL Endpoint:</strong>
-                <div class="endpoint-url">/graphql</div>
+                <div style="margin-top: 10px;">
+                  <input type="text" id="serverUrl" class="server-url-input" placeholder="Enter server URL (e.g., http://localhost:9000/graphql)" />
+                  <button onclick="saveServerUrl()" style="margin-left: 10px; padding: 8px 16px;">Update URL</button>
+                </div>
               </div>
               
               <h2>Query Editor</h2>
@@ -447,6 +463,32 @@ app.get('/graphql-playground', (c) => {
           }
         }
         
+        function saveServerUrl() {
+          const serverUrl = document.getElementById('serverUrl').value.trim();
+          if (serverUrl) {
+            localStorage.setItem('graphql-server-url', serverUrl);
+            alert('Server URL saved: ' + serverUrl);
+          } else {
+            localStorage.removeItem('graphql-server-url');
+            alert('Server URL cleared. Will use default /graphql endpoint.');
+          }
+        }
+        
+        function loadServerUrl() {
+          const savedUrl = localStorage.getItem('graphql-server-url');
+          const serverUrlInput = document.getElementById('serverUrl');
+          if (savedUrl) {
+            serverUrlInput.value = savedUrl;
+          } else {
+            serverUrlInput.value = '/graphql';
+          }
+        }
+        
+        function getServerUrl() {
+          const serverUrlInput = document.getElementById('serverUrl');
+          return serverUrlInput.value.trim() || '/graphql';
+        }
+        
         async function executeQuery() {
           const query = document.getElementById('queryEditor').value;
           const responseDiv = document.getElementById('response');
@@ -461,7 +503,8 @@ app.get('/graphql-playground', (c) => {
           responseDiv.textContent = 'Executing query...';
           
           try {
-            const response = await fetch('/graphql', {
+            const serverUrl = getServerUrl();
+            const response = await fetch(serverUrl, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -506,6 +549,7 @@ app.get('/graphql-playground', (c) => {
         // Initialize
         renderQueryList();
         loadQuery(0, false);
+        loadServerUrl();
       </script>
     </body>
     </html>
