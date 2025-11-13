@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sandbox",
   "main": "src/index.ts",
-  "compatibility_date": "2025-11-12"
+  "compatibility_date": "2025-11-12",
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
@@ -31,8 +31,12 @@
   // "ai": {
   //   "binding": "AI"
   // },
-  // "observability": {
-  //   "enabled": true,
-  //   "head_sampling_rate": 1
-  // }
+  "observability": {
+      "logs": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "invocation_logs": true,
+        "persist": true
+      }
+    }
 }

@@ -1,7 +1,29 @@
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { productTemplates, users, products } from './data'
 
 const app = new Hono()
+
+// Configure CORS to allow requests from localhost and other origins
+app.use('/*', cors({
+  origin: (origin) => {
+    // Allow localhost on any port
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return origin
+    }
+    // Allow your deployed domain
+    if (origin.includes('samircaus.workers.dev')) {
+      return origin
+    }
+    // For development, allow all origins (you can restrict this in production)
+    return '*'
+  },
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  exposeHeaders: ['Content-Length'],
+  maxAge: 600,
+  credentials: true,
+}))
 
 app.get('/', (c) => {
   const html = `
@@ -267,6 +289,21 @@ app.get('/graphql-playground', (c) => {
           outline: none;
           border-color: #0066cc;
         }
+        .server-preset-select {
+          width: 100%;
+          padding: 10px 12px;
+          border: 2px solid #ddd;
+          border-radius: 4px;
+          font-family: monospace;
+          font-size: 14px;
+          background: white;
+          cursor: pointer;
+          transition: border-color 0.2s;
+        }
+        .server-preset-select:focus {
+          outline: none;
+          border-color: #0066cc;
+        }
       </style>
     </head>
     <body>
@@ -288,7 +325,16 @@ app.get('/graphql-playground', (c) => {
               <div class="info-section">
                 <strong>GraphQL Endpoint:</strong>
                 <div style="margin-top: 10px;">
-                  <input type="text" id="serverUrl" class="server-url-input" placeholder="Enter server URL (e.g., http://localhost:9000/graphql)" />
+                  <select id="serverPresets" class="server-preset-select" onchange="loadPresetUrl()">
+                    <option value="">Select a preset...</option>
+                    <option value="/graphql">(relative): /graphql</option>
+                    <option value="http://localhost:9000/graphql">localhost:9000</option>
+                    <option value="https://sandbox.samircaus.workers.dev/graphql">sandbox.samircaus.workers.dev/graphql</option>
+                    <option value="custom">Custom URL...</option>
+                  </select>
+                </div>
+                <div style="margin-top: 10px;">
+                  <input type="text" id="serverUrl" class="server-url-input" placeholder="Enter custom server URL (e.g., http://localhost:9000/graphql)" />
                   <button onclick="saveServerUrl()" style="margin-left: 10px; padding: 8px 16px;">Update URL</button>
                 </div>
               </div>
@@ -463,10 +509,38 @@ app.get('/graphql-playground', (c) => {
           }
         }
         
+        function loadPresetUrl() {
+          const presetSelect = document.getElementById('serverPresets');
+          const serverUrlInput = document.getElementById('serverUrl');
+          const selectedValue = presetSelect.value;
+          
+          if (selectedValue && selectedValue !== 'custom') {
+            serverUrlInput.value = selectedValue;
+            localStorage.setItem('graphql-server-url', selectedValue);
+          } else if (selectedValue === 'custom') {
+            serverUrlInput.focus();
+          }
+        }
+        
         function saveServerUrl() {
           const serverUrl = document.getElementById('serverUrl').value.trim();
           if (serverUrl) {
             localStorage.setItem('graphql-server-url', serverUrl);
+            
+            // Update preset dropdown if it matches a preset
+            const presetSelect = document.getElementById('serverPresets');
+            let foundPreset = false;
+            for (let option of presetSelect.options) {
+              if (option.value === serverUrl) {
+                presetSelect.value = serverUrl;
+                foundPreset = true;
+                break;
+              }
+            }
+            if (!foundPreset && serverUrl) {
+              presetSelect.value = 'custom';
+            }
+            
             alert('Server URL saved: ' + serverUrl);
           } else {
             localStorage.removeItem('graphql-server-url');
@@ -477,10 +551,26 @@ app.get('/graphql-playground', (c) => {
         function loadServerUrl() {
           const savedUrl = localStorage.getItem('graphql-server-url');
           const serverUrlInput = document.getElementById('serverUrl');
+          const presetSelect = document.getElementById('serverPresets');
+          
           if (savedUrl) {
             serverUrlInput.value = savedUrl;
+            
+            // Set dropdown to matching preset or "custom"
+            let foundPreset = false;
+            for (let option of presetSelect.options) {
+              if (option.value === savedUrl) {
+                presetSelect.value = savedUrl;
+                foundPreset = true;
+                break;
+              }
+            }
+            if (!foundPreset) {
+              presetSelect.value = 'custom';
+            }
           } else {
             serverUrlInput.value = '/graphql';
+            presetSelect.value = '/graphql';
           }
         }
         
