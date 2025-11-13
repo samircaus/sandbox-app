@@ -647,7 +647,36 @@ app.get('/graphql-playground', (c) => {
   return c.html(html)
 })
 
-// Simple GraphQL handler endpoint
+// Simple GraphQL handler endpoint (GET for introspection)
+app.get('/graphql', async (c) => {
+  try {
+    const query = c.req.query('query')
+    
+    if (!query) {
+      // Return schema info for basic GET requests
+      return c.json({
+        data: {
+          message: 'GraphQL endpoint is active. Use POST requests with a query or add ?query=... for GET requests.'
+        }
+      })
+    }
+    
+    // Simple query parser and executor
+    const result = executeGraphQLQuery(query)
+    console.log('📥 GET Incoming:', query, '| ✅ Outgoing:', JSON.stringify(result))
+    return c.json(result)
+  } catch (error) {
+    const errorResponse = { 
+      errors: [{ 
+        message: error instanceof Error ? error.message : 'Unknown error' 
+      }] 
+    }
+    console.log('❌ GET Error:', JSON.stringify(errorResponse))
+    return c.json(errorResponse)
+  }
+})
+
+// Simple GraphQL handler endpoint (POST for mutations and queries)
 app.post('/graphql', async (c) => {
   let body: any = {}
   try {
@@ -676,11 +705,234 @@ app.post('/graphql', async (c) => {
   }
 })
 
+// GraphQL Schema Definition for Introspection
+const graphqlSchema = {
+  __schema: {
+    queryType: { name: 'Query' },
+    mutationType: null,
+    subscriptionType: null,
+    types: [
+      {
+        kind: 'OBJECT',
+        name: 'Query',
+        description: 'The root query type',
+        fields: [
+          {
+            name: 'hello',
+            description: 'Returns a greeting message',
+            args: [],
+            type: { kind: 'SCALAR', name: 'String', ofType: null },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'user',
+            description: 'Get a single user by ID',
+            args: [
+              {
+                name: 'id',
+                description: 'User ID',
+                type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+                defaultValue: null
+              }
+            ],
+            type: { kind: 'OBJECT', name: 'User', ofType: null },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'users',
+            description: 'Get all users',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'LIST', name: null, ofType: { kind: 'OBJECT', name: 'User' } } },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'product',
+            description: 'Get a single product by ID',
+            args: [
+              {
+                name: 'id',
+                description: 'Product ID',
+                type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+                defaultValue: null
+              }
+            ],
+            type: { kind: 'OBJECT', name: 'Product', ofType: null },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'products',
+            description: 'Get all products, optionally filtered by category',
+            args: [
+              {
+                name: 'category',
+                description: 'Filter by category',
+                type: { kind: 'SCALAR', name: 'String', ofType: null },
+                defaultValue: null
+              }
+            ],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'LIST', name: null, ofType: { kind: 'OBJECT', name: 'Product' } } },
+            isDeprecated: false,
+            deprecationReason: null
+          }
+        ],
+        interfaces: [],
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: null
+      },
+      {
+        kind: 'OBJECT',
+        name: 'User',
+        description: 'A user object',
+        fields: [
+          {
+            name: 'id',
+            description: 'User ID',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'name',
+            description: 'User name',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'email',
+            description: 'User email',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'role',
+            description: 'User role',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+            isDeprecated: false,
+            deprecationReason: null
+          }
+        ],
+        interfaces: [],
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: null
+      },
+      {
+        kind: 'OBJECT',
+        name: 'Product',
+        description: 'A product object',
+        fields: [
+          {
+            name: 'id',
+            description: 'Product ID',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'name',
+            description: 'Product name',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'price',
+            description: 'Product price',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'Float' } },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'category',
+            description: 'Product category',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'String' } },
+            isDeprecated: false,
+            deprecationReason: null
+          },
+          {
+            name: 'inStock',
+            description: 'Whether product is in stock',
+            args: [],
+            type: { kind: 'NON_NULL', name: null, ofType: { kind: 'SCALAR', name: 'Boolean' } },
+            isDeprecated: false,
+            deprecationReason: null
+          }
+        ],
+        interfaces: [],
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: null
+      },
+      {
+        kind: 'SCALAR',
+        name: 'String',
+        description: 'The `String` scalar type represents textual data',
+        fields: null,
+        interfaces: null,
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: null
+      },
+      {
+        kind: 'SCALAR',
+        name: 'Float',
+        description: 'The `Float` scalar type represents signed double-precision fractional values',
+        fields: null,
+        interfaces: null,
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: null
+      },
+      {
+        kind: 'SCALAR',
+        name: 'Boolean',
+        description: 'The `Boolean` scalar type represents `true` or `false`',
+        fields: null,
+        interfaces: null,
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: null
+      }
+    ],
+    directives: []
+  }
+}
+
 // Simple GraphQL query executor
 function executeGraphQLQuery(query: string) {
   try {
     // Remove query wrapper and extract field names
     const cleanQuery = query.replace(/query\s+\w*\s*{/, '{').trim()
+    
+    // Handle introspection queries
+    if (query.includes('__schema') || query.includes('IntrospectionQuery')) {
+      return { data: graphqlSchema }
+    }
+    
+    // Handle __type introspection
+    if (query.includes('__type')) {
+      const typeMatch = query.match(/__type\s*\(\s*name:\s*"(\w+)"\s*\)/)
+      if (typeMatch) {
+        const typeName = typeMatch[1]
+        const type = graphqlSchema.__schema.types.find(t => t.name === typeName)
+        return { data: { __type: type || null } }
+      }
+    }
     
     // Check for hello
     if (cleanQuery.includes('hello')) {
