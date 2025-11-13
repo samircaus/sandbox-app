@@ -682,6 +682,22 @@ app.post('/graphql', async (c) => {
   try {
     body = await c.req.json()
     
+    // Handle batch requests (array of queries)
+    if (Array.isArray(body)) {
+      console.log('📦 Batch request with', body.length, 'queries')
+      const results = body.map((item, index) => {
+        const query = item.query
+        if (!query) {
+          return { errors: [{ message: 'No query provided' }] }
+        }
+        const result = executeGraphQLQuery(query, index)
+        return result
+      })
+      console.log('📥 Batch Incoming:', JSON.stringify(body), '| ✅ Batch Outgoing:', JSON.stringify(results))
+      return c.json(results)
+    }
+    
+    // Handle single query
     const query = body.query
     
     if (!query) {
@@ -690,8 +706,11 @@ app.post('/graphql', async (c) => {
       return c.json(errorResponse)
     }
     
+    // Check if batch index is provided in query
+    const batchIndex = body.batchIndex
+    
     // Simple query parser and executor
-    const result = executeGraphQLQuery(query)
+    const result = executeGraphQLQuery(query, batchIndex)
     console.log('📥 Incoming:', JSON.stringify(body), '| ✅ Outgoing:', JSON.stringify(result))
     return c.json(result)
   } catch (error) {
@@ -913,18 +932,36 @@ const graphqlSchema = {
   }
 }
 
+// Helper function to add batch prefix to keys
+function addBatchPrefix(data: any, batchIndex?: number): any {
+  if (batchIndex === undefined || batchIndex === null) {
+    return data
+  }
+  
+  const prefix = `_${batchIndex}_`
+  const prefixedData: any = {}
+  
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      prefixedData[prefix + key] = data[key]
+    }
+  }
+  
+  return prefixedData
+}
+
 // Simple GraphQL query executor
-function executeGraphQLQuery(query: string) {
+function executeGraphQLQuery(query: string, batchIndex?: number) {
   try {
     // Remove query wrapper and extract field names
     const cleanQuery = query.replace(/query\s+\w*\s*{/, '{').trim()
     
-    // Handle introspection queries
+    // Handle introspection queries (no prefix for introspection)
     if (query.includes('__schema') || query.includes('IntrospectionQuery')) {
       return { data: graphqlSchema }
     }
     
-    // Handle __type introspection
+    // Handle __type introspection (no prefix for introspection)
     if (query.includes('__type')) {
       const typeMatch = query.match(/__type\s*\(\s*name:\s*"(\w+)"\s*\)/)
       if (typeMatch) {
@@ -934,65 +971,44 @@ function executeGraphQLQuery(query: string) {
       }
     }
     
+    // Collect all query results
+    const data: any = {}
+    
     // Check for hello
     if (cleanQuery.includes('hello')) {
-      const helloResult = graphqlApp.Query.hello()
-      return { data: { hello: helloResult } }
+      data.hello = graphqlApp.Query.hello()
     }
     
     // Check for users query
     if (cleanQuery.match(/users\s*{/)) {
-      const usersResult = graphqlApp.Query.users()
-      return { data: { users: usersResult } }
+      data.users = graphqlApp.Query.users()
     }
     
     // Check for single user query
     const userMatch = cleanQuery.match(/user\s*\(\s*id:\s*"(\w+)"\s*\)/)
     if (userMatch) {
       const userId = userMatch[1]
-      const userResult = graphqlApp.Query.user(userId)
-      return { data: { user: userResult } }
+      data.user = graphqlApp.Query.user(userId)
     }
     
     // Check for products query with optional category
     const productsMatch = cleanQuery.match(/products(?:\s*\(\s*category:\s*"(\w+)"\s*\))?/)
-    if (productsMatch) {
+    if (productsMatch && !cleanQuery.match(/product\s*\(\s*id:/)) {
       const category = productsMatch[1]
-      const productsResult = graphqlApp.Query.products(category)
-      return { data: { products: productsResult } }
+      data.products = graphqlApp.Query.products(category)
     }
     
     // Check for single product query
     const productMatch = cleanQuery.match(/product\s*\(\s*id:\s*"(\w+)"\s*\)/)
     if (productMatch) {
       const productId = productMatch[1]
-      const productResult = graphqlApp.Query.product(productId)
-      return { data: { product: productResult } }
+      data.product = graphqlApp.Query.product(productId)
     }
     
-    // Handle multiple queries in one request
-    const data: any = {}
+    // Apply batch prefix if provided
+    const finalData = addBatchPrefix(data, batchIndex)
     
-    if (cleanQuery.includes('hello')) {
-      data.hello = graphqlApp.Query.hello()
-    }
-    if (cleanQuery.match(/users\s*{/)) {
-      data.users = graphqlApp.Query.users()
-    }
-    if (cleanQuery.match(/user\s*\(/)) {
-      const match = cleanQuery.match(/user\s*\(\s*id:\s*"(\w+)"\s*\)/)
-      if (match) data.user = graphqlApp.Query.user(match[1])
-    }
-    if (cleanQuery.match(/products/)) {
-      const match = cleanQuery.match(/products\s*\(\s*category:\s*"(\w+)"\s*\)/)
-      data.products = graphqlApp.Query.products(match ? match[1] : undefined)
-    }
-    if (cleanQuery.match(/product\s*\(/)) {
-      const match = cleanQuery.match(/product\s*\(\s*id:\s*"(\w+)"\s*\)/)
-      if (match) data.product = graphqlApp.Query.product(match[1])
-    }
-    
-    return { data }
+    return { data: finalData }
   } catch (error) {
     return { 
       errors: [{ 
