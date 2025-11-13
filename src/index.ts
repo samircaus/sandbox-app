@@ -649,8 +649,9 @@ app.get('/graphql-playground', (c) => {
 
 // Simple GraphQL handler endpoint
 app.post('/graphql', async (c) => {
+  let body: any = {}
   try {
-    const body = await c.req.json()
+    body = await c.req.json()
     
     const query = body.query
     
