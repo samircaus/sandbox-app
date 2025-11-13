@@ -136,7 +136,6 @@ components:
         specifications:
           type: object
           description: Product specifications
-          additionalProperties: true
           properties:
             weight:
               type: string
