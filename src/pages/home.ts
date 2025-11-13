@@ -61,6 +61,15 @@ export const homePageHtml = `
     <p>API Documentation:</p>
     <a href="/openapi.yaml">→ OpenAPI Schema (YAML)</a>
   </div>
+  <div class="product-links">
+    <p>GraphQL GET Persisted Queries (click to test):</p>
+    <a href="/graphql?query={hello}" target="_blank">→ Hello Query</a>
+    <a href="/graphql?query={users{id name email role}}" target="_blank">→ All Users</a>
+    <a href="/graphql?query={user(id:\"1\"){id name email role}}" target="_blank">→ User by ID</a>
+    <a href="/graphql?query={products{id name price category inStock}}" target="_blank">→ All Products</a>
+    <a href="/graphql?query={products(category:\"Electronics\"){id name price inStock}}" target="_blank">→ Electronics Products</a>
+    <a href="/graphql?query={product(id:\"1\"){id name price category inStock}}" target="_blank">→ Product by ID</a>
+  </div>
   </div>
 </body>
 </html>

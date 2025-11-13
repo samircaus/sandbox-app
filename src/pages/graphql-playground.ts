@@ -207,6 +207,9 @@ export const graphqlPlaygroundHtml = `
         
         <h2 style="margin-top: 30px;">Persisted Queries</h2>
         <ul class="query-list" id="persistedQueryList"></ul>
+        
+        <h2 style="margin-top: 30px;">GET Examples</h2>
+        <ul class="query-list" id="getQueryList"></ul>
       </div>
       
       <div class="main-content">
@@ -410,10 +413,49 @@ export const graphqlPlaygroundHtml = `
       }
     ];
     
+    const getQueryExamples = [
+      {
+        name: 'GET: Hello',
+        description: 'Simple greeting via GET',
+        query: '{hello}',
+        getUrl: '/graphql?query={hello}'
+      },
+      {
+        name: 'GET: All Users',
+        description: 'Fetch all users via GET',
+        query: '{users{id name email role}}',
+        getUrl: '/graphql?query={users{id name email role}}'
+      },
+      {
+        name: 'GET: User by ID',
+        description: 'Fetch single user via GET',
+        query: '{user(id:"1"){id name email role}}',
+        getUrl: '/graphql?query={user(id:"1"){id name email role}}'
+      },
+      {
+        name: 'GET: All Products',
+        description: 'Fetch all products via GET',
+        query: '{products{id name price category inStock}}',
+        getUrl: '/graphql?query={products{id name price category inStock}}'
+      },
+      {
+        name: 'GET: Electronics',
+        description: 'Filter products by category',
+        query: '{products(category:"Electronics"){id name price inStock}}',
+        getUrl: '/graphql?query={products(category:"Electronics"){id name price inStock}}'
+      },
+      {
+        name: 'GET: Product by ID',
+        description: 'Fetch single product via GET',
+        query: '{product(id:"1"){id name price category inStock}}',
+        getUrl: '/graphql?query={product(id:"1"){id name price category inStock}}'
+      }
+    ];
+    
     function renderQueryList() {
       const queryList = document.getElementById('queryList');
       queryList.innerHTML = sampleQueries.map((q, idx) => \`
-        <li class="query-item" onclick="loadQuery(\${idx}, false, event)">
+        <li class="query-item" onclick="loadQuery(\${idx}, 'sample', event)">
           <div class="query-name">\${q.name}</div>
           <div class="query-desc">\${q.description}</div>
         </li>
@@ -421,17 +463,49 @@ export const graphqlPlaygroundHtml = `
       
       const persistedList = document.getElementById('persistedQueryList');
       persistedList.innerHTML = persistedQueries.map((q, idx) => \`
-        <li class="query-item" onclick="loadQuery(\${idx}, true, event)">
+        <li class="query-item" onclick="loadQuery(\${idx}, 'persisted', event)">
+          <div class="query-name">\${q.name}</div>
+          <div class="query-desc">\${q.description}</div>
+        </li>
+      \`).join('');
+      
+      const getList = document.getElementById('getQueryList');
+      getList.innerHTML = getQueryExamples.map((q, idx) => \`
+        <li class="query-item" onclick="loadQuery(\${idx}, 'get', event)">
           <div class="query-name">\${q.name}</div>
           <div class="query-desc">\${q.description}</div>
         </li>
       \`).join('');
     }
     
-    function loadQuery(index, isPersisted, evt) {
-      const queries = isPersisted ? persistedQueries : sampleQueries;
-      const query = queries[index];
+    function loadQuery(index, queryType, evt) {
+      let query;
+      let queries;
+      
+      if (queryType === 'sample') {
+        queries = sampleQueries;
+      } else if (queryType === 'persisted') {
+        queries = persistedQueries;
+      } else if (queryType === 'get') {
+        queries = getQueryExamples;
+      }
+      
+      query = queries[index];
       document.getElementById('queryEditor').value = query.query;
+      
+      // Show GET URL if available
+      const responseDiv = document.getElementById('response');
+      if (query.getUrl) {
+        const serverUrl = getServerUrl();
+        const baseUrl = serverUrl.startsWith('http') ? new URL(serverUrl).origin : window.location.origin;
+        const fullUrl = baseUrl + query.getUrl;
+        
+        responseDiv.className = 'response';
+        responseDiv.innerHTML = \`<strong>GET Request URL:</strong>\\n\${fullUrl}\\n\\n<strong>Encoded URL:</strong>\\n\${encodeURI(fullUrl)}\\n\\nClick "Execute Query" or visit the URL above in your browser.\\n\\n<button onclick="copyGetUrl('\${encodeURI(fullUrl).replace(/'/g, "\\\\'")}')">Copy URL</button> <button onclick="openGetUrl('\${encodeURI(fullUrl).replace(/'/g, "\\\\'")}')">Open in New Tab</button>\`;
+      } else {
+        responseDiv.className = 'response';
+        responseDiv.textContent = 'Response will appear here...';
+      }
       
       // Update active state
       document.querySelectorAll('.query-item').forEach(item => {
@@ -440,6 +514,18 @@ export const graphqlPlaygroundHtml = `
       if (evt) {
         evt.target.closest('.query-item').classList.add('active');
       }
+    }
+    
+    function copyGetUrl(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        alert('URL copied to clipboard!');
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+      });
+    }
+    
+    function openGetUrl(url) {
+      window.open(url, '_blank');
     }
     
     function loadPresetUrl() {
@@ -585,7 +671,7 @@ export const graphqlPlaygroundHtml = `
     
     // Initialize
     renderQueryList();
-    loadQuery(0, false);
+    loadQuery(0, 'sample');
     loadServerUrl();
   </script>
 </body>
