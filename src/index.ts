@@ -651,21 +651,27 @@ app.get('/graphql-playground', (c) => {
 app.post('/graphql', async (c) => {
   try {
     const body = await c.req.json()
+    
     const query = body.query
     
     if (!query) {
-      return c.json({ errors: [{ message: 'No query provided' }] })
+      const errorResponse = { errors: [{ message: 'No query provided' }] }
+      console.log('📥 Incoming:', JSON.stringify(body), '| ❌ Outgoing:', JSON.stringify(errorResponse))
+      return c.json(errorResponse)
     }
     
     // Simple query parser and executor
     const result = executeGraphQLQuery(query)
+    console.log('📥 Incoming:', JSON.stringify(body), '| ✅ Outgoing:', JSON.stringify(result))
     return c.json(result)
   } catch (error) {
-    return c.json({ 
+    const errorResponse = { 
       errors: [{ 
         message: error instanceof Error ? error.message : 'Unknown error' 
       }] 
-    })
+    }
+    console.log('📥 Incoming:', JSON.stringify(body), '| ❌ Outgoing:', JSON.stringify(errorResponse))
+    return c.json(errorResponse)
   }
 })
 
