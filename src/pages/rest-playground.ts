@@ -336,8 +336,9 @@ export const restPlaygroundHtml = `
       {
         method: 'GET',
         path: '/product/{id}',
-        name: 'Get Product by ID',
-        description: 'Fetch product with random properties',
+        operationId: 'getProductById',
+        name: 'getProductById',
+        description: 'Get product by ID - Returns a product with randomized properties',
         params: [
           { name: 'id', description: 'Product ID', example: '1' }
         ]
@@ -345,14 +346,16 @@ export const restPlaygroundHtml = `
       {
         method: 'GET',
         path: '/product/42',
-        name: 'Get Product 42',
+        operationId: 'getProductById',
+        name: 'getProductById (example: 42)',
         description: 'Example with numeric ID',
         params: []
       },
       {
         method: 'GET',
         path: '/product/xyz',
-        name: 'Get Product XYZ',
+        operationId: 'getProductById',
+        name: 'getProductById (example: xyz)',
         description: 'Example with alphanumeric ID',
         params: []
       }
