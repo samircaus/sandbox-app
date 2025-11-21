@@ -192,6 +192,46 @@ export const graphqlPlaygroundHtml = `
       outline: none;
       border-color: #0066cc;
     }
+    .headers-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    .header-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .header-input {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    .header-input:focus {
+      outline: none;
+      border-color: #0066cc;
+    }
+    .btn-small {
+      padding: 8px 12px;
+      font-size: 12px;
+      background: #dc2626;
+    }
+    .btn-small:hover {
+      background: #b91c1c;
+    }
+    .btn-add {
+      background: #059669;
+      margin-top: 5px;
+    }
+    .btn-add:hover {
+      background: #047857;
+    }
   </style>
 </head>
 <body>
@@ -233,6 +273,12 @@ export const graphqlPlaygroundHtml = `
           
           <h2>Query Editor</h2>
           <textarea id="queryEditor" placeholder="Enter your GraphQL query here..."></textarea>
+          
+          <div class="headers-section">
+            <h3>Request Headers</h3>
+            <div id="headersContainer"></div>
+            <button class="btn-add" onclick="addHeaderRow()">+ Add Header</button>
+          </div>
           
           <div style="margin-top: 15px;" class="button-group">
             <button onclick="executeQuery()">Execute Query</button>
@@ -598,6 +644,74 @@ export const graphqlPlaygroundHtml = `
       return serverUrlInput.value.trim() || '/graphql';
     }
     
+    function addHeaderRow(key = '', value = '') {
+      const container = document.getElementById('headersContainer');
+      const rowId = 'header_' + Date.now();
+      
+      const row = document.createElement('div');
+      row.className = 'header-row';
+      row.id = rowId;
+      row.innerHTML = \`
+        <input type="text" class="header-input" placeholder="Header name (e.g., Authorization)" 
+          value="\${key}" onchange="saveHeaders()" />
+        <input type="text" class="header-input" placeholder="Header value" 
+          value="\${value}" onchange="saveHeaders()" />
+        <button class="btn-small" onclick="removeHeaderRow('\${rowId}')">Remove</button>
+      \`;
+      
+      container.appendChild(row);
+    }
+    
+    function removeHeaderRow(rowId) {
+      const row = document.getElementById(rowId);
+      if (row) {
+        row.remove();
+        saveHeaders();
+      }
+    }
+    
+    function saveHeaders() {
+      const headers = getHeaders();
+      localStorage.setItem('graphql-headers', JSON.stringify(headers));
+    }
+    
+    function getHeaders() {
+      const container = document.getElementById('headersContainer');
+      const rows = container.querySelectorAll('.header-row');
+      const headers = {};
+      
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll('.header-input');
+        const key = inputs[0].value.trim();
+        const value = inputs[1].value.trim();
+        
+        if (key && value) {
+          headers[key] = value;
+        }
+      });
+      
+      // Always include Content-Type for GraphQL
+      headers['Content-Type'] = 'application/json';
+      
+      return headers;
+    }
+    
+    function loadHeaders() {
+      const saved = localStorage.getItem('graphql-headers');
+      if (saved) {
+        try {
+          const headers = JSON.parse(saved);
+          Object.entries(headers).forEach(([key, value]) => {
+            if (key !== 'Content-Type') { // Don't show Content-Type as it's always added
+              addHeaderRow(key, value);
+            }
+          });
+        } catch (e) {
+          console.error('Failed to load headers:', e);
+        }
+      }
+    }
+    
     async function executeQuery() {
       const query = document.getElementById('queryEditor').value;
       const responseDiv = document.getElementById('response');
@@ -627,11 +741,11 @@ export const graphqlPlaygroundHtml = `
           requestBody = JSON.stringify({ query });
         }
         
+        const headers = getHeaders();
+        
         const response = await fetch(serverUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: headers,
           body: requestBody
         });
         
@@ -673,6 +787,7 @@ export const graphqlPlaygroundHtml = `
     renderQueryList();
     loadQuery(0, 'sample');
     loadServerUrl();
+    loadHeaders();
   </script>
 </body>
 </html>
