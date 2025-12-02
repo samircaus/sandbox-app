@@ -78,3 +78,204 @@ export const products = [
   { id: '5', name: 'USB-C Hub', price: 39.99, category: 'Accessories', inStock: true }
 ]
 
+// Extended sample data for advanced GraphQL queries
+export const cities = [
+  {
+    _path: '/content/dam/sample-content-fragments/cities/basel',
+    name: 'Basel',
+    country: 'Switzerland',
+    population: 172258,
+    categories: ['city:emea']
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/cities/berlin',
+    name: 'Berlin',
+    country: 'Germany',
+    population: 3669491,
+    categories: ['city:capital', 'city:emea'],
+    _tags: ['tourism:city-break', 'tourism:business']
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/cities/bucharest',
+    name: 'Bucharest',
+    country: 'Romania',
+    population: 1821000,
+    categories: ['city:capital', 'city:emea']
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/cities/san-francisco',
+    name: 'San Francisco',
+    country: 'USA',
+    population: 883306,
+    categories: ['city:beach', 'city:na']
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/cities/san-jose',
+    name: 'San Jose',
+    country: 'USA',
+    population: 1026350,
+    categories: ['city:na']
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/cities/stuttgart',
+    name: 'Stuttgart',
+    country: 'Germany',
+    population: 634830,
+    categories: ['city:emea']
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/cities/zurich',
+    name: 'Zurich',
+    country: 'Switzerland',
+    population: 415367,
+    categories: ['city:emea'],
+    _tags: ['tourism:city-break', 'tourism:business']
+  }
+]
+
+export const persons = [
+  {
+    _path: '/content/dam/sample-content-fragments/persons/steve-jobs',
+    name: 'Jobs',
+    firstName: 'Steve',
+    awards: []
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/persons/adam-smith',
+    name: 'Smith',
+    firstName: 'Adam',
+    awards: []
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/persons/joe-smith',
+    name: 'Smith',
+    firstName: 'Joe',
+    awards: []
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/persons/lara-croft',
+    name: 'Croft',
+    firstName: 'Lara',
+    awards: [
+      { id: 'GS', title: 'Gamestar' }
+    ]
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/persons/cutter-slade',
+    name: 'Slade',
+    firstName: 'Cutter',
+    awards: [
+      { id: 'GB', title: 'Gameblitz' },
+      { id: 'GS', title: 'Gamestar' }
+    ]
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/persons/duke-marsh',
+    name: 'Marsh',
+    firstName: 'Duke',
+    awards: []
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/persons/max-caulfield',
+    name: 'Caulfield',
+    firstName: 'Max',
+    awards: [
+      { id: 'GB', title: 'Gameblitz' }
+    ]
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/persons/abraham-lincoln',
+    name: 'Lincoln',
+    firstName: 'Abraham',
+    awards: []
+  }
+]
+
+export const companies = [
+  {
+    _path: '/content/dam/sample-content-fragments/companies/apple',
+    name: 'Apple Inc.',
+    ceo: persons[0], // Steve Jobs
+    employees: [persons[5], persons[6]] // Duke Marsh, Max Caulfield
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/companies/little-pony',
+    name: 'Little Pony, Inc.',
+    ceo: persons[1], // Adam Smith
+    employees: [persons[3], persons[4]] // Lara Croft, Cutter Slade
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/companies/nextstep',
+    name: 'NextStep Inc.',
+    ceo: persons[0], // Steve Jobs
+    employees: [persons[2], persons[7]] // Joe Smith, Abraham Lincoln
+  }
+]
+
+export const awards = [
+  {
+    _path: '/content/dam/sample-content-fragments/awards/gameblitz',
+    id: 'GB',
+    title: 'Gameblitz',
+    _metadata: {
+      stringMetadata: [
+        { name: 'title', value: 'Gameblitz Award' },
+        { name: 'description', value: '' }
+      ]
+    }
+  },
+  {
+    _path: '/content/dam/sample-content-fragments/awards/gamestar',
+    id: 'GS',
+    title: 'Gamestar',
+    _metadata: {
+      stringMetadata: [
+        { name: 'title', value: 'Gamestar Award' },
+        { name: 'description', value: 'Prestigious gaming industry award' }
+      ]
+    }
+  }
+]
+
+export const adventures = [
+  {
+    _path: '/content/dam/wknd/en/adventures/cycling-southern-utah/cycling-southern-utah',
+    title: 'Cycling Southern Utah',
+    description: 'Explore the stunning red rock landscapes of Southern Utah on a multi-day cycling adventure.',
+    adventureType: 'Cycling',
+    price: 1200,
+    tripLength: '4 days',
+    groupSize: 8,
+    difficulty: 'Intermediate',
+    primaryImage: {
+      _path: '/content/dam/wknd/en/adventures/cycling-southern-utah/cycling-hero.jpg'
+    }
+  },
+  {
+    _path: '/content/dam/wknd/en/adventures/cycling-tuscany/cycling-tuscany',
+    title: 'Cycling Tuscany',
+    description: 'Bike through rolling hills, vineyards, and historic villages in the heart of Italy.',
+    adventureType: 'Cycling',
+    price: 1500,
+    tripLength: '6 days',
+    groupSize: 10,
+    difficulty: 'Easy',
+    primaryImage: {
+      _path: '/content/dam/wknd/en/adventures/cycling-tuscany/cycling-hero.jpg'
+    }
+  },
+  {
+    _path: '/content/dam/wknd/en/adventures/bali-surf-camp/bali-surf-camp',
+    title: 'Bali Surf Camp',
+    description: 'Learn to surf or improve your skills at this tropical surf camp in Bali.',
+    adventureType: 'Surfing',
+    price: 800,
+    tripLength: '5 days',
+    groupSize: 12,
+    difficulty: 'Beginner',
+    primaryImage: {
+      _path: '/content/dam/wknd/en/adventures/bali-surf-camp/surf-hero.jpg'
+    }
+  }
+]
+

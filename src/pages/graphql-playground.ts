@@ -298,6 +298,18 @@ export const graphqlPlaygroundHtml = `
   <script>
     const sampleQueries = [
       {
+        name: 'Schema Introspection',
+        description: 'All available types',
+        query: \`{
+  __schema {
+    types {
+      name
+      description
+    }
+  }
+}\`
+      },
+      {
         name: 'Hello Query',
         description: 'Simple greeting query',
         query: \`query {
@@ -317,77 +329,368 @@ export const graphqlPlaygroundHtml = `
 }\`
       },
       {
-        name: 'Single User',
-        description: 'Fetch user by ID',
-        query: \`query {
-  user(id: "1") {
-    id
-    name
-    email
-    role
+        name: 'All Cities',
+        description: 'Fetch all cities',
+        query: \`{
+  cityList {
+    items {
+      _path
+      name
+      country
+      population
+    }
   }
 }\`
       },
       {
-        name: 'All Products',
-        description: 'Fetch all products',
+        name: 'City Names Only',
+        description: 'Return just city names',
         query: \`query {
-  products {
-    id
-    name
-    price
-    category
-    inStock
+  cityList {
+    items {
+      name
+    }
   }
 }\`
       },
       {
-        name: 'Products by Category',
-        description: 'Filter products by category',
-        query: \`query {
-  products(category: "Electronics") {
-    id
-    name
-    price
-    inStock
+        name: 'Single City by Path',
+        description: 'Get Berlin city details',
+        query: \`{
+  cityByPath(_path: "/content/dam/sample-content-fragments/cities/berlin") {
+    item {
+      _path
+      name
+      country
+      population
+      categories
+    }
   }
 }\`
       },
       {
-        name: 'Single Product',
-        description: 'Fetch product by ID',
+        name: 'Cities with SAN (case-insensitive)',
+        description: 'Filter cities containing "SAN"',
         query: \`query {
-  getProductById(id: "1") {
-    id
-    name
-    price
-    category
-    inStock
+  cityList(filter: {
+    name: {
+      _expressions: [
+        {
+          value: "SAN"
+          _operator: CONTAINS
+          _ignoreCase: true
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      population
+      country
+    }
   }
 }\`
       },
       {
-        name: 'Batch: User (index 0)',
-        description: 'Query with batch index 0',
+        name: 'Cities by Population Range',
+        description: 'Germany/Switzerland, 400k-999k pop',
         query: \`query {
-  user(id: "1") {
-    name
-    email
+  cityList(filter: {
+    population: {
+      _expressions: [
+        {
+          value: 400000
+          _operator: GREATER_EQUAL
+        }, {
+          value: 1000000
+          _operator: LOWER
+        }
+      ]
+    },
+    country: {
+      _logOp: OR
+      _expressions: [
+        { value: "Germany" }, 
+        { value: "Switzerland" }
+      ]
+    }
+  }) {
+    items {
+      name
+      population
+      country
+    }
   }
-}
-# Response keys will be prefixed: _0_user\`
+}\`
       },
       {
-        name: 'Batch: Products (index 1)',
-        description: 'Query with batch index 1',
+        name: 'Cities with Array Filter',
+        description: 'Cities with "city:na" category',
         query: \`query {
-  products {
-    id
-    name
-    price
+  cityList(filter: {
+    categories: {
+      _expressions: [
+        {
+          value: "city:na"
+          _apply: AT_LEAST_ONCE
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      population
+      country
+      categories
+    }
   }
-}
-# Response keys will be prefixed: _1_products\`
+}\`
+      },
+      {
+        name: 'Cities Tagged City Break',
+        description: 'Filter by _tags field',
+        query: \`query {
+  cityList(filter: {
+    _tags: {
+      _expressions: [{
+        value: "tourism:city-break"
+        _operator: CONTAINS
+      }]
+    }
+  }) {
+    items {
+      name
+      _tags
+    }
+  }
+}\`
+      },
+      {
+        name: 'All Persons',
+        description: 'Fetch all persons',
+        query: \`query {
+  personList {
+    items {
+      name
+      firstName
+    }
+  }
+}\`
+      },
+      {
+        name: 'Persons: Jobs or Smith',
+        description: 'Filter with OR logic',
+        query: \`query {
+  personList(filter: {
+    name: {
+      _logOp: OR
+      _expressions: [
+        { value: "Jobs" },
+        { value: "Smith" }
+      ]
+    }
+  }) {
+    items {
+      name
+      firstName
+    }
+  }
+}\`
+      },
+      {
+        name: 'Persons Not Named Jobs',
+        description: 'EQUALS_NOT operator',
+        query: \`query {
+  personList(filter: {
+    name: {
+      _expressions: [
+        {
+          value: "Jobs"
+          _operator: EQUALS_NOT
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      firstName
+    }
+  }
+}\`
+      },
+      {
+        name: 'Company CEO and Employees',
+        description: 'Nested fragment query',
+        query: \`query {
+  companyList {
+    items {
+      name
+      ceo {
+        _path
+        name
+        firstName
+        awards {
+          id
+          title
+        }
+      }
+      employees {
+        name
+        firstName
+        awards {
+          id
+          title
+        }
+      }
+    }
+  }
+}\`
+      },
+      {
+        name: 'Companies with Employee Smith',
+        description: 'Nested filter with _match',
+        query: \`query {
+  companyList(filter: {
+    employees: {
+      _match: {
+        name: {
+          _expressions: [
+            { value: "Smith" }
+          ]
+        }
+      }
+    }
+  }) {
+    items {
+      name
+      ceo {
+        name
+        firstName
+      }
+      employees {
+        name
+        firstName
+      }
+    }
+  }
+}\`
+      },
+      {
+        name: 'Companies: All Employees won GS',
+        description: 'Deep nested filter with ALL',
+        query: \`query {
+  companyList(filter: {
+    employees: {
+      _apply: ALL
+      _match: {
+        awards: {
+          _match: {
+            id: {
+              _expressions: [
+                {
+                  value: "GS"
+                  _operator: EQUALS
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }) {
+    items {
+      name
+      ceo {
+        name
+        firstName
+      }
+      employees {
+        name
+        firstName
+        awards {
+          id
+          title
+        }
+      }
+    }
+  }
+}\`
+      },
+      {
+        name: 'Awards Metadata',
+        description: 'Query metadata for GB award',
+        query: \`query {
+  awardList(filter: {
+    id: {
+      _expressions: [
+        { value: "GB" }
+      ]
+    }
+  }) {
+    items {
+      _metadata {
+        stringMetadata {
+          name
+          value
+        }
+      }
+      id
+      title
+    }
+  }
+}\`
+      },
+      {
+        name: 'Adventures with STARTS_WITH',
+        description: 'Filter by path prefix',
+        query: \`query {
+  adventureList(filter: {
+    _path: {
+      _expressions: [
+        {
+          value: "/content/dam/wknd/en/adventures/cycling"
+          _operator: STARTS_WITH
+        }
+      ]
+    }
+  }) {
+    items {
+      _path
+      title
+    }
+  }
+}\`
+      },
+      {
+        name: 'Pagination with offset/limit',
+        description: 'Skip 5, get next 5 cities',
+        query: \`{
+  cityList(offset: 5, limit: 5) {
+    items {
+      name
+      country
+      population
+    }
+  }
+}\`
+      },
+      {
+        name: 'Cursor-based Pagination',
+        description: 'Adventures with cursors',
+        query: \`{
+  adventurePaginated(first: 5) {
+    edges {
+      cursor
+      node {
+        title
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}\`
       }
     ];
     
@@ -411,28 +714,88 @@ export const graphqlPlaygroundHtml = `
 }\`
       },
       {
-        name: 'User Products View',
-        description: 'User info with products',
-        query: \`query UserProductsView {
-  user(id: "1") {
-    name
-    email
+        name: 'Content Fragment Dashboard',
+        description: 'Cities, persons, and companies',
+        query: \`query ContentDashboard {
+  cityList {
+    items {
+      name
+      country
+      population
+    }
   }
-  products(category: "Electronics") {
-    name
-    price
+  personList {
+    items {
+      firstName
+      name
+    }
+  }
+  companyList {
+    items {
+      name
+      ceo {
+        firstName
+        name
+      }
+    }
   }
 }\`
       },
       {
-        name: 'Inventory Check',
-        description: 'Check product inventory',
-        query: \`query InventoryCheck {
-  products {
-    id
-    name
-    category
-    inStock
+        name: 'Travel Planning Query',
+        description: 'Cities for city breaks with adventures',
+        query: \`query TravelPlanning {
+  cityList(filter: {
+    _tags: {
+      _expressions: [{
+        value: "tourism:city-break"
+        _operator: CONTAINS
+      }]
+    }
+  }) {
+    items {
+      name
+      country
+      _tags
+    }
+  }
+  adventureList {
+    items {
+      title
+      adventureType
+      price
+    }
+  }
+}\`
+      },
+      {
+        name: 'Organization Report',
+        description: 'Companies with award-winning staff',
+        query: \`query OrganizationReport {
+  companyList {
+    items {
+      name
+      ceo {
+        firstName
+        name
+        awards {
+          title
+        }
+      }
+      employees {
+        firstName
+        name
+        awards {
+          title
+        }
+      }
+    }
+  }
+  awardList {
+    items {
+      id
+      title
+    }
   }
 }\`
       },
@@ -473,28 +836,40 @@ export const graphqlPlaygroundHtml = `
         getUrl: '/graphql?query={users{id name email role}}'
       },
       {
-        name: 'GET: User by ID',
-        description: 'Fetch single user via GET',
-        query: '{user(id:"1"){id name email role}}',
-        getUrl: '/graphql?query={user(id:"1"){id name email role}}'
+        name: 'GET: All Cities',
+        description: 'Fetch all cities via GET',
+        query: '{cityList{items{name country population}}}',
+        getUrl: '/graphql?query={cityList{items{name country population}}}'
       },
       {
-        name: 'GET: All Products',
-        description: 'Fetch all products via GET',
-        query: '{products{id name price category inStock}}',
-        getUrl: '/graphql?query={products{id name price category inStock}}'
+        name: 'GET: City by Path',
+        description: 'Fetch Berlin city details',
+        query: '{cityByPath(_path:"/content/dam/sample-content-fragments/cities/berlin"){item{name country population}}}',
+        getUrl: '/graphql?query={cityByPath(_path:"/content/dam/sample-content-fragments/cities/berlin"){item{name country population}}}'
       },
       {
-        name: 'GET: Electronics',
-        description: 'Filter products by category',
-        query: '{products(category:"Electronics"){id name price inStock}}',
-        getUrl: '/graphql?query={products(category:"Electronics"){id name price inStock}}'
+        name: 'GET: All Persons',
+        description: 'Fetch all persons via GET',
+        query: '{personList{items{firstName name}}}',
+        getUrl: '/graphql?query={personList{items{firstName name}}}'
       },
       {
-        name: 'GET: Product by ID',
-        description: 'Fetch single product via GET',
-        query: '{getProductById(id:"1"){id name price category inStock}}',
-        getUrl: '/graphql?query={getProductById(id:"1"){id name price category inStock}}'
+        name: 'GET: All Companies',
+        description: 'Fetch companies with CEO',
+        query: '{companyList{items{name ceo{firstName name}}}}',
+        getUrl: '/graphql?query={companyList{items{name ceo{firstName name}}}}'
+      },
+      {
+        name: 'GET: All Adventures',
+        description: 'Fetch all adventures',
+        query: '{adventureList{items{title adventureType price}}}',
+        getUrl: '/graphql?query={adventureList{items{title adventureType price}}}'
+      },
+      {
+        name: 'GET: Schema Types',
+        description: 'Introspect schema types',
+        query: '{__schema{types{name}}}',
+        getUrl: '/graphql?query={__schema{types{name}}}'
       }
     ];
     
