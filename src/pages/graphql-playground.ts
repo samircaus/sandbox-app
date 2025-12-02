@@ -310,6 +310,21 @@ export const graphqlPlaygroundHtml = `
 }\`
       },
       {
+        name: '__TypeKind Enum Values',
+        description: 'Introspect enum values',
+        query: \`{
+  __type(name: "__TypeKind") {
+    name
+    kind
+    description
+    enumValues {
+      name
+      description
+    }
+  }
+}\`
+      },
+      {
         name: 'Hello Query',
         description: 'Simple greeting query',
         query: \`query {

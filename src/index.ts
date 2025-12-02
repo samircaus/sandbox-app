@@ -252,10 +252,10 @@ function executeGraphQLQuery(query: string, batchIndex?: number) {
     
     // Handle __type introspection (no prefix for introspection)
     if (query.includes('__type')) {
-      const typeMatch = query.match(/__type\s*\(\s*name:\s*"(\w+)"\s*\)/)
+      const typeMatch = query.match(/__type\s*\(\s*name:\s*"([^"]+)"\s*\)/)
       if (typeMatch) {
         const typeName = typeMatch[1]
-        const type = graphqlSchema.__schema.types.find(t => t.name === typeName)
+        const type = graphqlSchema.__schema.types.find((t: any) => t.name === typeName)
         return { data: { __type: type || null } }
       }
     }
