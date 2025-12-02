@@ -60,15 +60,29 @@ export const homePageHtml = `
   <div class="product-links">
     <p>API Documentation:</p>
     <a href="/openapi.yaml">→ OpenAPI Schema (YAML)</a>
+    <a href="/graphql/schema.json" target="_blank">→ GraphQL Schema (JSON)</a>
+    <a href="/graphql/endpoint.json" target="_blank">→ GraphQL Endpoint Info (JSON)</a>
   </div>
   <div class="product-links">
-    <p>GraphQL GET Persisted Queries (click to test):</p>
+    <p>GraphQL Introspection Examples:</p>
+    <a href="/graphql?query={__schema{types{name description}}}" target="_blank">→ Schema Types</a>
+    <a href="/graphql?query={__schema{queryType{name}}}" target="_blank">→ Query Root Type</a>
+  </div>
+  <div class="product-links">
+    <p>GraphQL Content Fragment Queries:</p>
+    <a href="/graphql?query={cityList{items{name country population}}}" target="_blank">→ All Cities</a>
+    <a href="/graphql?query={personList{items{firstName name}}}" target="_blank">→ All Persons</a>
+    <a href="/graphql?query={companyList{items{name ceo{firstName name}}}}" target="_blank">→ All Companies</a>
+    <a href="/graphql?query={adventureList{items{title adventureType price}}}" target="_blank">→ All Adventures</a>
+  </div>
+  <div class="product-links">
+    <p>GraphQL Legacy Queries (Users & Products):</p>
     <a href="/graphql?query={hello}" target="_blank">→ Hello Query</a>
     <a href="/graphql?query={users{id name email role}}" target="_blank">→ All Users</a>
     <a href="/graphql?query={user(id:\"1\"){id name email role}}" target="_blank">→ User by ID</a>
     <a href="/graphql?query={products{id name price category inStock}}" target="_blank">→ All Products</a>
     <a href="/graphql?query={products(category:\"Electronics\"){id name price inStock}}" target="_blank">→ Electronics Products</a>
-    <a href="/graphql?query={product(id:\"1\"){id name price category inStock}}" target="_blank">→ Product by ID</a>
+    <a href="/graphql?query={getProductById(id:\"1\"){id name price category inStock}}" target="_blank">→ Product by ID</a>
   </div>
   </div>
 </body>

@@ -71,6 +71,50 @@ app.get('/openapi.yaml', (c) => {
   return c.text(openapiYaml)
 })
 
+// GraphQL Schema JSON endpoints
+app.get('/graphql/schema.json', (c) => {
+  return c.json(graphqlSchema)
+})
+
+app.get('/graphql/schema', (c) => {
+  return c.json(graphqlSchema)
+})
+
+// GraphQL endpoint info (lists available queries)
+app.get('/graphql/endpoint.json', (c) => {
+  const endpointInfo = {
+    endpoint: '/graphql',
+    methods: ['GET', 'POST'],
+    schemaUrl: '/graphql/schema.json',
+    playgroundUrl: '/graphql-playground',
+    introspectionQuery: '{ __schema { types { name description } } }',
+    features: [
+      'Schema Introspection',
+      'Advanced Filtering (EQUALS, CONTAINS, STARTS_WITH, etc.)',
+      'Nested Fragment Queries',
+      'Pagination (offset/limit and cursor-based)',
+      'Metadata Queries',
+      'Tag-based Filtering',
+      'Path-based Queries'
+    ],
+    availableQueries: graphqlSchema.__schema.types
+      .find((t: any) => t.name === 'Query')
+      ?.fields?.map((f: any) => ({
+        name: f.name,
+        description: f.description
+      })) || [],
+    exampleQueries: {
+      introspection: '{ __schema { types { name } } }',
+      cities: '{ cityList { items { name country population } } }',
+      filteredCities: '{ cityList(filter: { country: { _expressions: [{ value: "USA" }] } }) { items { name } } }',
+      persons: '{ personList { items { firstName name } } }',
+      companies: '{ companyList { items { name ceo { firstName name } } } }',
+      pagination: '{ cityList(offset: 0, limit: 5) { items { name } } }'
+    }
+  }
+  return c.json(endpointInfo)
+})
+
 // REST Playground endpoint
 app.get('/rest-playground', (c) => {
   return c.html(restPlaygroundHtml)
