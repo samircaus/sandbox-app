@@ -357,7 +357,7 @@ export const graphqlPlaygroundHtml = `
         name: 'Single Product',
         description: 'Fetch product by ID',
         query: \`query {
-  product(id: "1") {
+  getProductById(id: "1") {
     id
     name
     price
@@ -493,8 +493,8 @@ export const graphqlPlaygroundHtml = `
       {
         name: 'GET: Product by ID',
         description: 'Fetch single product via GET',
-        query: '{product(id:"1"){id name price category inStock}}',
-        getUrl: '/graphql?query={product(id:"1"){id name price category inStock}}'
+        query: '{getProductById(id:"1"){id name price category inStock}}',
+        getUrl: '/graphql?query={getProductById(id:"1"){id name price category inStock}}'
       }
     ];
     

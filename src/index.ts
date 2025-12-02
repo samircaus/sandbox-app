@@ -202,7 +202,7 @@ const graphqlSchema = {
             deprecationReason: null
           },
           {
-            name: 'product',
+            name: 'getProductById',
             description: 'Get a single product by ID',
             args: [
               {
@@ -432,11 +432,12 @@ function executeGraphQLQuery(query: string, batchIndex?: number) {
       data.products = graphqlApp.Query.products(category)
     }
     
-    // Check for single product query
-    const productMatch = cleanQuery.match(/product\s*\(\s*id:\s*"(\w+)"\s*\)/)
+    // Check for single product query (supports both getProductById and product for backwards compatibility)
+    const productMatch = cleanQuery.match(/(?:getProductById|product)\s*\(\s*id:\s*"(\w+)"\s*\)/)
     if (productMatch) {
       const productId = productMatch[1]
-      data.product = graphqlApp.Query.product(productId)
+      // Always return with the key 'getProductById' for consistency
+      data.getProductById = graphqlApp.Query.getProductById(productId)
     }
     
     // Apply batch prefix if provided
@@ -466,7 +467,7 @@ export const graphqlApp = {
       return users
     },
     
-    product: (id: string) => {
+    getProductById: (id: string) => {
       return products.find(p => p.id === id) || null
     },
     

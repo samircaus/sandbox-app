@@ -115,7 +115,9 @@ components:
           example: true
         quantity:
           type: integer
+          format: int32
           description: Available quantity
+          minimum: 0
           example: 42
         imageUrl:
           type: string
@@ -131,7 +133,9 @@ components:
           example: 4.5
         reviews:
           type: integer
+          format: int32
           description: Number of reviews
+          minimum: 0
           example: 123
         specifications:
           type: object
