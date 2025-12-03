@@ -1351,58 +1351,15 @@ export const graphqlPlaygroundHtml = `
         icon: '📦',
         queries: [
           {
-            name: 'User Query with Batch Index 0',
-            description: 'Returns _0_user in response',
+            name: 'Multiple Queries (Cities + Persons)',
+            description: 'Add batch mode header manually',
             query: \`{
-  user(id: "1") {
-    id
-    name
-    email
-    role
-  }
-}
-
-# Add to request body:
-# ${'{ "query": "...", "batchIndex": 0 }'}
-# Response: ${'{ "data": { "_0_user": {...} } }'}\`
-          },
-          {
-            name: 'City List with Batch Index 0',
-            description: 'Returns _0_cityList in response',
-            query: \`{
-  cityList(limit: 5) {
+  cityList(limit: 3) {
     items {
       name
       country
-      population
     }
   }
-}
-
-# Add to request body:
-# ${'{ "query": "...", "batchIndex": 0 }'}
-# Response: ${'{ "data": { "_0_cityList": {...} } }'}\`
-          },
-          {
-            name: 'Products with Batch Index 1',
-            description: 'Returns _1_products in response',
-            query: \`{
-  products(category: "electronics") {
-    id
-    name
-    price
-    inStock
-  }
-}
-
-# Add to request body:
-# ${'{ "query": "...", "batchIndex": 1 }'}
-# Response: ${'{ "data": { "_1_products": [...] } }'}\`
-          },
-          {
-            name: 'Person List with Batch Index 2',
-            description: 'Returns _2_personList in response',
-            query: \`{
   personList {
     items {
       firstName
@@ -1411,30 +1368,12 @@ export const graphqlPlaygroundHtml = `
   }
 }
 
-# Add to request body:
-# ${'{ "query": "...", "batchIndex": 2 }'}
-# Response: ${'{ "data": { "_2_personList": {...} } }'}\`
+# Add header: X-GraphQL-Batch-Mode = true
+# Response: { "data": { "_0_cityList": {...}, "_1_personList": {...} } }\`
           },
           {
-            name: 'Adventure List with Batch Index 3',
-            description: 'Returns _3_adventureList in response',
-            query: \`{
-  adventureList(limit: 10) {
-    items {
-      title
-      adventureType
-      price
-    }
-  }
-}
-
-# Add to request body:
-# ${'{ "query": "...", "batchIndex": 3 }'}
-# Response: ${'{ "data": { "_3_adventureList": {...} } }'}\`
-          },
-          {
-            name: 'Company Query with Batch Index 0',
-            description: 'Returns _0_companyList in response',
+            name: 'Dashboard Query',
+            description: 'Multiple queries at once',
             query: \`{
   companyList {
     items {
@@ -1445,11 +1384,41 @@ export const graphqlPlaygroundHtml = `
       }
     }
   }
+  awardList {
+    items {
+      id
+      title
+    }
+  }
+  adventureList(limit: 5) {
+    items {
+      title
+      price
+    }
+  }
 }
 
-# Add to request body:
-# ${'{ "query": "...", "batchIndex": 0 }'}
-# Response: ${'{ "data": { "_0_companyList": {...} } }'}\`
+# Add header: X-GraphQL-Batch-Mode = true
+# Response: { "data": { "_0_companyList": {...}, "_1_awardList": {...}, "_2_adventureList": {...} } }\`
+          },
+          {
+            name: 'Users + Products',
+            description: 'Two different data sources',
+            query: \`{
+  users {
+    id
+    name
+    role
+  }
+  products {
+    id
+    name
+    price
+  }
+}
+
+# Add header: X-GraphQL-Batch-Mode = true
+# Response: { "data": { "_0_users": [...], "_1_products": [...] } }\`
           }
         ]
       },

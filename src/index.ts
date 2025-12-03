@@ -23,7 +23,7 @@ app.use('/*', cors({
     return '*'
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
+  allowHeaders: ['Content-Type', 'Authorization', 'X-GraphQL-Batch-Mode'],
   exposeHeaders: ['Content-Length'],
   maxAge: 600,
   credentials: true,
@@ -85,6 +85,7 @@ app.get('/graphql/endpoint.json', (c) => {
   const endpointInfo = {
     endpoint: '/graphql',
     methods: ['GET', 'POST'],
+    batchModeHeader: 'X-GraphQL-Batch-Mode: true',
     schemaUrl: '/graphql/schema.json',
     playgroundUrl: '/graphql-playground',
     introspectionQuery: '{ __schema { types { name description } } }',
@@ -95,8 +96,17 @@ app.get('/graphql/endpoint.json', (c) => {
       'Pagination (offset/limit and cursor-based)',
       'Metadata Queries',
       'Tag-based Filtering',
-      'Path-based Queries'
+      'Path-based Queries',
+      'Batch Query Mode (via X-GraphQL-Batch-Mode header)',
+      'Auto-prefixed Batch Responses (_0_, _1_, _2_, etc.)'
     ],
+    batchMode: {
+      description: 'Automatically prefix each root-level query field with _0_, _1_, _2_, etc.',
+      header: 'X-GraphQL-Batch-Mode: true',
+      example: 'Add X-GraphQL-Batch-Mode: true header to GET or POST requests',
+      exampleQuery: '{ cityList { items { name } } personList { items { firstName } } }',
+      exampleResponse: '{ "data": { "_0_cityList": {...}, "_1_personList": {...} } }'
+    },
     availableQueries: graphqlSchema.__schema.types
       .find((t: any) => t.name === 'Query')
       ?.fields?.map((f: any) => ({
@@ -139,9 +149,12 @@ app.get('/graphql', async (c) => {
       })
     }
     
+    // Check for batch mode header
+    const batchMode = c.req.header('X-GraphQL-Batch-Mode') === 'true'
+    
     // Simple query parser and executor
-    const result = executeGraphQLQuery(query)
-    console.log('📥 GET Incoming:', query, '| ✅ Outgoing:', JSON.stringify(result))
+    const result = executeGraphQLQuery(query, batchMode)
+    console.log('📥 GET Incoming:', query, `| Batch Mode: ${batchMode ? 'ON' : 'OFF'} | ✅ Outgoing:`, JSON.stringify(result))
     return c.json(result)
   } catch (error) {
     const errorResponse = { 
@@ -160,20 +173,8 @@ app.post('/graphql', async (c) => {
   try {
     body = await c.req.json()
     
-    // Handle batch requests (array of queries)
-    if (Array.isArray(body)) {
-      console.log('📦 Batch request with', body.length, 'queries')
-      const results = body.map((item, index) => {
-        const query = item.query
-        if (!query) {
-          return { errors: [{ message: 'No query provided' }] }
-        }
-        const result = executeGraphQLQuery(query, index)
-        return result
-      })
-      console.log('📥 Batch Incoming:', JSON.stringify(body), '| ✅ Batch Outgoing:', JSON.stringify(results))
-      return c.json(results)
-    }
+    // Check for batch mode header
+    const batchMode = c.req.header('X-GraphQL-Batch-Mode') === 'true'
     
     // Handle single query
     const query = body.query
@@ -184,12 +185,10 @@ app.post('/graphql', async (c) => {
       return c.json(errorResponse)
     }
     
-    // Check if batch index is provided in query
-    const batchIndex = body.batchIndex
+    // Execute query with batch mode if header is set
+    const result = executeGraphQLQuery(query, batchMode)
     
-    // Simple query parser and executor
-    const result = executeGraphQLQuery(query, batchIndex)
-    console.log('📥 Incoming:', JSON.stringify(body), '| ✅ Outgoing:', JSON.stringify(result))
+    console.log('📥 Incoming:', JSON.stringify(body), `| Batch Mode: ${batchMode ? 'ON' : 'OFF'} | ✅ Outgoing:`, JSON.stringify(result))
     return c.json(result)
   } catch (error) {
     const errorResponse = { 
@@ -206,41 +205,24 @@ app.post('/graphql', async (c) => {
 import { graphqlSchema } from './graphql-schema'
 import { applyFilters, applyPagination, applyCursorPagination } from './graphql-utils'
 
-// Helper function to add batch prefix to keys
-function addBatchPrefix(data: any, batchIndex?: number): any {
-  if (batchIndex === undefined || batchIndex === null) {
-    return data
-  }
-  
-  const prefix = `_${batchIndex}_`
+// Helper function to apply batch prefix to each root-level field
+function applyBatchPrefix(data: any): any {
   const prefixedData: any = {}
+  let index = 0
   
   for (const key in data) {
     if (data.hasOwnProperty(key)) {
-      prefixedData[prefix + key] = data[key]
+      prefixedData[`_${index}_${key}`] = data[key]
+      index++
     }
   }
   
   return prefixedData
 }
 
-// Parse filter arguments from query (simplified parser)
-function parseFilterArgs(queryStr: string): any {
-  const filter: any = {}
-  
-  // Extract filter patterns (simplified)
-  const patterns = [
-    // Match: fieldName: { _expressions: [{ value: "X", _operator: Y }] }
-    /(\w+):\s*{\s*_expressions:\s*\[\s*{\s*value:\s*"([^"]+)"\s*(?:,\s*_operator:\s*(\w+))?\s*}\s*\]\s*}/g,
-    // Match: fieldName: { value: "X" }
-    /(\w+):\s*{\s*value:\s*"([^"]+)"\s*}/g
-  ]
-  
-  return filter
-}
-
 // Advanced GraphQL query executor with filtering and pagination
-function executeGraphQLQuery(query: string, batchIndex?: number) {
+// batchMode: if true, automatically prefixes all root fields with _0_, _1_, _2_, etc.
+function executeGraphQLQuery(query: string, batchMode: boolean = false) {
   try {
     // Remove query wrapper and extract field names
     const cleanQuery = query.replace(/query\s+\w*\s*{/, '{').trim()
@@ -523,8 +505,8 @@ function executeGraphQLQuery(query: string, batchIndex?: number) {
       data.adventurePaginated = graphqlApp.Query.adventurePaginated(first, after)
     }
     
-    // Apply batch prefix if provided
-    const finalData = addBatchPrefix(data, batchIndex)
+    // Apply batch prefix if batch mode is enabled
+    const finalData = batchMode ? applyBatchPrefix(data) : data
     
     return { data: finalData }
   } catch (error) {
