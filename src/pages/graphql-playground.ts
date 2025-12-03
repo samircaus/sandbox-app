@@ -1924,13 +1924,13 @@ export const graphqlPlaygroundHtml = `
           // Check if this is a batch query by looking for "Batch Index" in the name
           if (queryName.includes('Batch Index')) {
             // Extract batch index from query name (e.g., "User Query with Batch Index 0")
-            const indexMatch = queryName.match(/Batch Index (\d+)/);
+            const indexMatch = queryName.match(/Batch Index (\\d+)/);
             const batchIndex = indexMatch ? parseInt(indexMatch[1]) : 0;
             
             // Clean the query - remove comment lines
-            const cleanedQuery = query.split('\n')
+            const cleanedQuery = query.split('\\n')
               .filter(line => !line.trim().startsWith('#'))
-              .join('\n')
+              .join('\\n')
               .trim();
             
             requestBody = JSON.stringify({ query: cleanedQuery, batchIndex });
