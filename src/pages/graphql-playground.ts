@@ -262,6 +262,58 @@ export const graphqlPlaygroundHtml = `
       width: 14px;
       height: 14px;
     }
+    .headers-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+      background: white;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .headers-table th {
+      background: #f8f9fa;
+      padding: 10px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #dee2e6;
+    }
+    .headers-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e9ecef;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+    }
+    .headers-table tr:last-child td {
+      border-bottom: none;
+    }
+    .headers-table tr:hover {
+      background: #f8f9fa;
+    }
+    .header-key {
+      color: #0066cc;
+      font-weight: 600;
+    }
+    .header-value {
+      color: #333;
+      word-break: break-all;
+    }
+    .headers-container {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .no-headers {
+      color: #999;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
@@ -335,6 +387,13 @@ export const graphqlPlaygroundHtml = `
               Copy Response
             </button>
           </div>
+          
+          <h3 style="margin-bottom: 5px;">Response Headers</h3>
+          <div id="responseHeaders" class="headers-container">
+            <div class="no-headers">No headers yet. Execute a query to see response headers.</div>
+          </div>
+          
+          <h3 style="margin-bottom: 5px;">Response Body</h3>
           <div id="response" class="response">Response will appear here...</div>
         </div>
       </div>
@@ -1148,9 +1207,41 @@ export const graphqlPlaygroundHtml = `
       }
     }
     
+    function displayResponseHeaders(response) {
+      const headersContainer = document.getElementById('responseHeaders');
+      const headers = {};
+      
+      // Extract all headers
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+      
+      // Check if there are any headers
+      if (Object.keys(headers).length === 0) {
+        headersContainer.innerHTML = '<div class="no-headers">No response headers</div>';
+        return;
+      }
+      
+      // Build table HTML
+      let tableHtml = '<table class="headers-table"><thead><tr><th>Header</th><th>Value</th></tr></thead><tbody>';
+      
+      for (const [key, value] of Object.entries(headers)) {
+        tableHtml += \`
+          <tr>
+            <td class="header-key">\${key}</td>
+            <td class="header-value">\${value}</td>
+          </tr>
+        \`;
+      }
+      
+      tableHtml += '</tbody></table>';
+      headersContainer.innerHTML = tableHtml;
+    }
+    
     async function executeQuery() {
       const query = document.getElementById('queryEditor').value;
       const responseDiv = document.getElementById('response');
+      const headersContainer = document.getElementById('responseHeaders');
       
       if (!query.trim()) {
         responseDiv.className = 'response error';
@@ -1160,6 +1251,7 @@ export const graphqlPlaygroundHtml = `
       
       responseDiv.className = 'response';
       responseDiv.textContent = 'Executing query...';
+      headersContainer.innerHTML = '<div class="no-headers">Loading...</div>';
       
       try {
         const serverUrl = getServerUrl();
@@ -1187,6 +1279,9 @@ export const graphqlPlaygroundHtml = `
         
         const data = await response.json();
         
+        // Display response headers
+        displayResponseHeaders(response);
+        
         if (data.errors) {
           responseDiv.className = 'response error';
           responseDiv.textContent = JSON.stringify(data, null, 2);
@@ -1197,6 +1292,7 @@ export const graphqlPlaygroundHtml = `
       } catch (error) {
         responseDiv.className = 'response error';
         responseDiv.textContent = 'Error: ' + error.message;
+        headersContainer.innerHTML = '<div class="no-headers">Error fetching headers</div>';
       }
     }
     
@@ -1204,6 +1300,7 @@ export const graphqlPlaygroundHtml = `
       document.getElementById('queryEditor').value = '';
       document.getElementById('response').className = 'response';
       document.getElementById('response').textContent = 'Response will appear here...';
+      document.getElementById('responseHeaders').innerHTML = '<div class="no-headers">No headers yet. Execute a query to see response headers.</div>';
       document.querySelectorAll('.query-item').forEach(item => {
         item.classList.remove('active');
       });

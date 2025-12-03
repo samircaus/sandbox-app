@@ -281,6 +281,58 @@ export const restPlaygroundHtml = `
       width: 14px;
       height: 14px;
     }
+    .headers-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+      background: white;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .headers-table th {
+      background: #f8f9fa;
+      padding: 10px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #dee2e6;
+    }
+    .headers-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e9ecef;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 12px;
+    }
+    .headers-table tr:last-child td {
+      border-bottom: none;
+    }
+    .headers-table tr:hover {
+      background: #f8f9fa;
+    }
+    .header-key {
+      color: #0066cc;
+      font-weight: 600;
+    }
+    .header-value {
+      color: #333;
+      word-break: break-all;
+    }
+    .headers-container {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .no-headers {
+      color: #999;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
@@ -371,6 +423,13 @@ export const restPlaygroundHtml = `
             <span style="font-size: 13px; color: #666;">Status: <strong id="statusCode">-</strong></span>
             <span style="margin-left: 20px; font-size: 13px; color: #666;">Time: <strong id="responseTime">-</strong></span>
           </div>
+          
+          <h3 style="margin-top: 15px; margin-bottom: 5px;">Response Headers</h3>
+          <div id="responseHeaders" class="headers-container">
+            <div class="no-headers">No headers yet. Send a request to see response headers.</div>
+          </div>
+          
+          <h3 style="margin-bottom: 5px;">Response Body</h3>
           <div id="response" class="response">Response will appear here...</div>
         </div>
       </div>
@@ -593,12 +652,44 @@ export const restPlaygroundHtml = `
       }
     }
     
+    function displayResponseHeaders(response) {
+      const headersContainer = document.getElementById('responseHeaders');
+      const headers = {};
+      
+      // Extract all headers
+      response.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+      
+      // Check if there are any headers
+      if (Object.keys(headers).length === 0) {
+        headersContainer.innerHTML = '<div class="no-headers">No response headers</div>';
+        return;
+      }
+      
+      // Build table HTML
+      let tableHtml = '<table class="headers-table"><thead><tr><th>Header</th><th>Value</th></tr></thead><tbody>';
+      
+      for (const [key, value] of Object.entries(headers)) {
+        tableHtml += \`
+          <tr>
+            <td class="header-key">\${key}</td>
+            <td class="header-value">\${value}</td>
+          </tr>
+        \`;
+      }
+      
+      tableHtml += '</tbody></table>';
+      headersContainer.innerHTML = tableHtml;
+    }
+    
     async function executeRequest() {
       const method = document.getElementById('methodInput').value;
       const path = document.getElementById('pathInput').value;
       const responseDiv = document.getElementById('response');
       const statusCodeEl = document.getElementById('statusCode');
       const responseTimeEl = document.getElementById('responseTime');
+      const headersContainer = document.getElementById('responseHeaders');
       
       if (!path.trim()) {
         responseDiv.className = 'response error';
@@ -610,6 +701,7 @@ export const restPlaygroundHtml = `
       responseDiv.textContent = 'Sending request...';
       statusCodeEl.textContent = '-';
       responseTimeEl.textContent = '-';
+      headersContainer.innerHTML = '<div class="no-headers">Loading...</div>';
       
       try {
         const serverUrl = getServerUrl();
@@ -629,6 +721,9 @@ export const restPlaygroundHtml = `
         statusCodeEl.textContent = response.status + ' ' + response.statusText;
         responseTimeEl.textContent = (endTime - startTime) + 'ms';
         
+        // Display response headers
+        displayResponseHeaders(response);
+        
         if (response.ok) {
           responseDiv.className = 'response success';
           responseDiv.textContent = JSON.stringify(data, null, 2);
@@ -641,6 +736,7 @@ export const restPlaygroundHtml = `
         responseDiv.textContent = 'Error: ' + error.message;
         statusCodeEl.textContent = 'Error';
         responseTimeEl.textContent = '-';
+        headersContainer.innerHTML = '<div class="no-headers">Error fetching headers</div>';
       }
     }
     
@@ -651,6 +747,7 @@ export const restPlaygroundHtml = `
       document.getElementById('response').textContent = 'Response will appear here...';
       document.getElementById('statusCode').textContent = '-';
       document.getElementById('responseTime').textContent = '-';
+      document.getElementById('responseHeaders').innerHTML = '<div class="no-headers">No headers yet. Send a request to see response headers.</div>';
       document.querySelectorAll('.endpoint-item').forEach(item => {
         item.classList.remove('active');
       });
