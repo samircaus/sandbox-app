@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { productTemplates, users, products, cities, persons, companies, awards, adventures } from './data'
+import { productTemplates, users, products, categories, cities, persons, companies, awards, adventures } from './data'
 import { homePageHtml } from './pages/home'
 import { restPlaygroundHtml } from './pages/rest-playground'
 import { graphqlPlaygroundHtml } from './pages/graphql-playground'
@@ -33,10 +33,47 @@ app.get('/', (c) => {
   return c.html(homePageHtml)
 })
 
+// REST endpoint: Get all categories
+app.get('/categories', (c) => {
+  return c.json(categories)
+})
+
+// REST endpoint: Get category by ID
+app.get('/category/:id', (c) => {
+  const id = c.req.param('id')
+  const category = categories.find(cat => cat.id === id)
+  
+  if (!category) {
+    return c.json({ error: 'Category not found' }, 404)
+  }
+  
+  return c.json(category)
+})
+
+// REST endpoint: Get all products with optional category filter
+app.get('/products', (c) => {
+  const category = c.req.query('category')
+  
+  let filteredProducts = products
+  
+  if (category) {
+    filteredProducts = products.filter(p => p.category === category)
+  }
+  
+  return c.json(filteredProducts)
+})
+
+// REST endpoint: Get product by ID with randomization
 app.get('/product/:id', (c) => {
   const id = c.req.param('id')
   
-  // Randomly select a product template
+  // First check if it's a known product ID
+  const knownProduct = products.find(p => p.id === id)
+  if (knownProduct) {
+    return c.json(knownProduct)
+  }
+  
+  // Otherwise, randomly select a product template for unknown IDs
   const template = productTemplates[Math.floor(Math.random() * productTemplates.length)]
   
   // Randomize various properties
@@ -263,17 +300,30 @@ function executeGraphQLQuery(query: string, batchMode: boolean = false) {
     }
     
     // Check for products query with optional category
-    const productsMatch = cleanQuery.match(/products(?:\s*\(\s*category:\s*"(\w+)"\s*\))?/)
-    if (productsMatch && !cleanQuery.match(/(?:getProduct|product\s*\()/)) {
+    // Updated pattern to handle both with and without spaces/newlines
+    const productsMatch = cleanQuery.match(/\bproducts\s*(?:\(\s*category:\s*"(\w+)"\s*\))?[\s{]/)
+    if (productsMatch) {
       const category = productsMatch[1]
       data.products = graphqlApp.Query.products(category)
     }
     
-    // Check for single product query
-    const productMatch = cleanQuery.match(/(?:getProductById|product)\s*\(\s*id:\s*"([^"]+)"\s*\)/)
+    // Check for single product query (getProductById)
+    const productMatch = cleanQuery.match(/\bgetProductById\s*\(\s*id:\s*"([^"]+)"\s*\)/)
     if (productMatch) {
       const productId = productMatch[1]
       data.getProductById = graphqlApp.Query.getProductById(productId)
+    }
+    
+    // Check for categories query
+    if (cleanQuery.match(/\bcategories\s*[\s{]/)) {
+      data.categories = graphqlApp.Query.categories()
+    }
+    
+    // Check for single category query (getCategoryById)
+    const categoryMatch = cleanQuery.match(/\bgetCategoryById\s*\(\s*id:\s*"([^"]+)"\s*\)/)
+    if (categoryMatch) {
+      const categoryId = categoryMatch[1]
+      data.getCategoryById = graphqlApp.Query.getCategoryById(categoryId)
     }
     
     // NEW: City queries
@@ -542,6 +592,15 @@ export const graphqlApp = {
         return products.filter(p => p.category === category)
       }
       return products
+    },
+    
+    // Category queries
+    categories: () => {
+      return categories
+    },
+    
+    getCategoryById: (id: string) => {
+      return categories.find(c => c.id === id) || null
     },
     
     // City queries

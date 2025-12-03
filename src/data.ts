@@ -1,3 +1,31 @@
+// Category data for GraphQL Mesh federation
+export const categories = [
+  {
+    id: 'cat-electronics',
+    name: 'Electronics',
+    description: 'Cutting-edge electronic devices and gadgets',
+    slug: 'electronics',
+    imageUrl: 'https://example.com/categories/electronics.jpg',
+    parentId: null
+  },
+  {
+    id: 'cat-wearables',
+    name: 'Wearables',
+    description: 'Smart wearable technology for fitness and lifestyle',
+    slug: 'wearables',
+    imageUrl: 'https://example.com/categories/wearables.jpg',
+    parentId: null
+  },
+  {
+    id: 'cat-accessories',
+    name: 'Accessories',
+    description: 'Essential accessories for your tech setup',
+    slug: 'accessories',
+    imageUrl: 'https://example.com/categories/accessories.jpg',
+    parentId: null
+  }
+]
+
 // Static array of product templates for REST endpoint
 export const productTemplates = [
   {
@@ -71,11 +99,116 @@ export const users = [
 ]
 
 export const products = [
-  { id: '1', name: 'Wireless Headphones', price: 99.99, category: 'Electronics', inStock: true },
-  { id: '2', name: 'Smart Watch', price: 249.99, category: 'Wearables', inStock: true },
-  { id: '3', name: 'Laptop Stand', price: 49.99, category: 'Accessories', inStock: false },
-  { id: '4', name: 'Mechanical Keyboard', price: 129.99, category: 'Electronics', inStock: true },
-  { id: '5', name: 'USB-C Hub', price: 39.99, category: 'Accessories', inStock: true }
+  { 
+    id: '1', 
+    name: 'Wireless Headphones', 
+    description: 'Premium noise-canceling wireless headphones with 30-hour battery life.',
+    categoryId: 'cat-electronics',
+    category: 'Electronics', 
+    text: 'This is {{description}} from category. Perfect for {{name}} enthusiasts!',
+    price: 99.99, 
+    currency: 'USD',
+    inStock: true,
+    quantity: 42,
+    imageUrl: 'https://example.com/products/1.jpg',
+    rating: 4.5,
+    reviews: 123,
+    specifications: {
+      weight: '250g',
+      dimensions: '18 x 16 x 8 cm',
+      color: 'Black',
+      brand: 'AudioTech'
+    },
+    tags: ['featured', 'wireless', 'audio']
+  },
+  { 
+    id: '2', 
+    name: 'Smart Watch', 
+    description: 'Fitness tracking smartwatch with heart rate monitor and GPS.',
+    categoryId: 'cat-wearables',
+    category: 'Wearables',
+    text: 'Explore the world of {{description}}. This {{name}} product is designed for active lifestyles.',
+    price: 249.99, 
+    currency: 'USD',
+    inStock: true,
+    quantity: 28,
+    imageUrl: 'https://example.com/products/2.jpg',
+    rating: 4.7,
+    reviews: 89,
+    specifications: {
+      weight: '45g',
+      dimensions: '4 x 4 x 1 cm',
+      color: 'Silver',
+      brand: 'TechFit'
+    },
+    tags: ['popular', 'fitness', 'smartwatch']
+  },
+  { 
+    id: '3', 
+    name: 'Laptop Stand', 
+    description: 'Ergonomic aluminum laptop stand with adjustable height.',
+    categoryId: 'cat-accessories',
+    category: 'Accessories',
+    text: 'Discover {{description}} in our {{name}} collection. Enhance your workspace!',
+    price: 49.99, 
+    currency: 'USD',
+    inStock: false,
+    quantity: 0,
+    imageUrl: 'https://example.com/products/3.jpg',
+    rating: 4.2,
+    reviews: 56,
+    specifications: {
+      weight: '1.2 kg',
+      dimensions: '26 x 23 x 6 cm',
+      color: 'Space Gray',
+      brand: 'DeskPro'
+    },
+    tags: ['ergonomic', 'office', 'aluminum']
+  },
+  { 
+    id: '4', 
+    name: 'Mechanical Keyboard', 
+    description: 'RGB backlit mechanical gaming keyboard with blue switches.',
+    categoryId: 'cat-electronics',
+    category: 'Electronics',
+    text: 'Experience {{description}} with this premium {{name}} item. Built for gamers and professionals.',
+    price: 129.99, 
+    currency: 'USD',
+    inStock: true,
+    quantity: 15,
+    imageUrl: 'https://example.com/products/4.jpg',
+    rating: 4.8,
+    reviews: 234,
+    specifications: {
+      weight: '900g',
+      dimensions: '44 x 13 x 4 cm',
+      color: 'Black',
+      brand: 'GameKeys'
+    },
+    tags: ['gaming', 'rgb', 'mechanical']
+  },
+  { 
+    id: '5', 
+    name: 'USB-C Hub', 
+    description: '7-in-1 USB-C hub with HDMI, USB 3.0, and SD card reader.',
+    categoryId: 'cat-accessories',
+    category: 'Accessories',
+    text: 'Browse our {{name}} offerings. This product exemplifies {{description}}.',
+    price: 39.99, 
+    currency: 'USD',
+    inStock: true,
+    quantity: 67,
+    imageUrl: 'https://example.com/products/5.jpg',
+    rating: 4.4,
+    reviews: 178,
+    specifications: {
+      weight: '85g',
+      dimensions: '11 x 4 x 1.5 cm',
+      color: 'Gray',
+      brand: 'ConnectPlus'
+    },
+    tags: ['usb-c', 'hub', 'portable']
+  }
 ]
 
 // Extended sample data for advanced GraphQL queries

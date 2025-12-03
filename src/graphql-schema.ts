@@ -15,6 +15,8 @@ export const graphqlSchema = {
           { name: 'users', description: 'Get all users', args: [], type: { kind: 'LIST', ofType: { kind: 'OBJECT', name: 'User' } }, isDeprecated: false, deprecationReason: null },
           { name: 'products', description: 'Get all products', args: [{ name: 'category', description: 'Filter by category', type: { kind: 'SCALAR', name: 'String' }, defaultValue: null }], type: { kind: 'LIST', ofType: { kind: 'OBJECT', name: 'Product' } }, isDeprecated: false, deprecationReason: null },
           { name: 'getProductById', description: 'Get product by ID', args: [{ name: 'id', description: 'Product ID', type: { kind: 'NON_NULL', ofType: { kind: 'SCALAR', name: 'String' } }, defaultValue: null }], type: { kind: 'OBJECT', name: 'Product' }, isDeprecated: false, deprecationReason: null },
+          { name: 'categories', description: 'Get all categories', args: [], type: { kind: 'LIST', ofType: { kind: 'OBJECT', name: 'Category' } }, isDeprecated: false, deprecationReason: null },
+          { name: 'getCategoryById', description: 'Get category by ID', args: [{ name: 'id', description: 'Category ID', type: { kind: 'NON_NULL', ofType: { kind: 'SCALAR', name: 'String' } }, defaultValue: null }], type: { kind: 'OBJECT', name: 'Category' }, isDeprecated: false, deprecationReason: null },
           { name: 'cityList', description: 'Get list of cities with filtering and pagination', args: [{ name: 'filter', description: 'Filter criteria', type: { kind: 'INPUT_OBJECT', name: 'FilterInput' }, defaultValue: null }, { name: 'offset', description: 'Pagination offset', type: { kind: 'SCALAR', name: 'Int' }, defaultValue: null }, { name: 'limit', description: 'Pagination limit', type: { kind: 'SCALAR', name: 'Int' }, defaultValue: null }], type: { kind: 'OBJECT', name: 'CityResults' }, isDeprecated: false, deprecationReason: null },
           { name: 'cityByPath', description: 'Get city by path', args: [{ name: '_path', description: 'Content fragment path', type: { kind: 'NON_NULL', ofType: { kind: 'SCALAR', name: 'String' } }, defaultValue: null }], type: { kind: 'OBJECT', name: 'CityItem' }, isDeprecated: false, deprecationReason: null },
           { name: 'personList', description: 'Get list of persons', args: [{ name: 'filter', description: 'Filter criteria', type: { kind: 'INPUT_OBJECT', name: 'FilterInput' }, defaultValue: null }], type: { kind: 'OBJECT', name: 'PersonResults' }, isDeprecated: false, deprecationReason: null },
@@ -286,13 +288,55 @@ export const graphqlSchema = {
       {
         kind: 'OBJECT',
         name: 'Product',
-        description: 'A product object',
+        description: 'A product object matching OpenAPI schema with Mesh federation support',
         fields: [
-          { name: 'id', description: 'Product ID', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'id', description: 'Unique product identifier', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
           { name: 'name', description: 'Product name', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'description', description: 'Product description', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'categoryId', description: 'Category ID for federation/joins', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'category', description: 'Product category name (Electronics, Wearables, Accessories)', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'text', description: 'Template text with {{placeholders}} for category data', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
           { name: 'price', description: 'Product price', type: { kind: 'SCALAR', name: 'Float' }, args: [], isDeprecated: false, deprecationReason: null },
-          { name: 'category', description: 'Product category', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
-          { name: 'inStock', description: 'In stock', type: { kind: 'SCALAR', name: 'Boolean' }, args: [], isDeprecated: false, deprecationReason: null }
+          { name: 'currency', description: 'Currency code', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'inStock', description: 'Whether product is in stock', type: { kind: 'SCALAR', name: 'Boolean' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'quantity', description: 'Available quantity', type: { kind: 'SCALAR', name: 'Int' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'imageUrl', description: 'Product image URL', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'rating', description: 'Product rating (3.0-5.0)', type: { kind: 'SCALAR', name: 'Float' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'reviews', description: 'Number of reviews', type: { kind: 'SCALAR', name: 'Int' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'specifications', description: 'Product specifications', type: { kind: 'OBJECT', name: 'ProductSpecifications' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'tags', description: 'Product tags', type: { kind: 'LIST', ofType: { kind: 'SCALAR', name: 'String' } }, args: [], isDeprecated: false, deprecationReason: null }
+        ],
+        interfaces: [],
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: null
+      },
+      {
+        kind: 'OBJECT',
+        name: 'Category',
+        description: 'A category object for product categorization',
+        fields: [
+          { name: 'id', description: 'Unique category identifier', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'name', description: 'Category name', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'description', description: 'Category description', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'slug', description: 'URL-friendly slug', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'imageUrl', description: 'Category image URL', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'parentId', description: 'Parent category ID for nested categories', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null }
+        ],
+        interfaces: [],
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: null
+      },
+      {
+        kind: 'OBJECT',
+        name: 'ProductSpecifications',
+        description: 'Product specifications object',
+        fields: [
+          { name: 'weight', description: 'Product weight', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'dimensions', description: 'Product dimensions', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'color', description: 'Product color', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null },
+          { name: 'brand', description: 'Product brand', type: { kind: 'SCALAR', name: 'String' }, args: [], isDeprecated: false, deprecationReason: null }
         ],
         interfaces: [],
         possibleTypes: null,

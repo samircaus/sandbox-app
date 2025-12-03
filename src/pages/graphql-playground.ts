@@ -371,8 +371,6 @@ export const graphqlPlaygroundHtml = `
 <body>
   ${navigationHeader}
   <div class="container">
-    <h1>GraphQL Playground</h1>
-    <p class="subtitle">Test your GraphQL API with sample queries</p>
     
     <div class="layout">
       <div class="sidebar">
@@ -390,6 +388,7 @@ export const graphqlPlaygroundHtml = `
                 <option value="/graphql">(relative): /graphql</option>
                 <option value="http://localhost:9000/graphql">localhost:9000</option>
                 <option value="https://sandbox.samircaus.workers.dev/graphql">sandbox.samircaus.workers.dev/graphql</option>
+                <option value="https://edge-sandbox-graph.adobe.io/api/28492762-049d-4c0d-8f4a-e0b17d988d40/graphql">Adobe GraphQL Mesh Sandbox</option>
                 <option value="custom">Custom URL...</option>
               </select>
             </div>
@@ -501,6 +500,372 @@ export const graphqlPlaygroundHtml = `
     name
     email
     role
+  }
+}\`
+          }
+        ]
+      },
+      {
+        name: 'Product Queries',
+        icon: '🛍️',
+        queries: [
+          {
+            name: 'All Products - Full Schema',
+            description: 'Get all products with complete OpenAPI fields',
+            query: \`query GetAllProducts {
+  products {
+    id
+    name
+    description
+    price
+    currency
+    category
+    inStock
+    quantity
+    imageUrl
+    rating
+    reviews
+    specifications {
+      weight
+      dimensions
+      color
+      brand
+    }
+    tags
+  }
+}\`
+          },
+          {
+            name: 'Product by ID - Complete',
+            description: 'Get single product with all fields',
+            query: \`query GetProductById {
+  getProductById(id: "1") {
+    id
+    name
+    description
+    price
+    currency
+    category
+    inStock
+    quantity
+    imageUrl
+    rating
+    reviews
+    specifications {
+      weight
+      dimensions
+      color
+      brand
+    }
+    tags
+  }
+}\`
+          },
+          {
+            name: 'Products - Basic Info',
+            description: 'Get essential product information',
+            query: \`query ProductBasicInfo {
+  products {
+    id
+    name
+    price
+    currency
+    inStock
+  }
+}\`
+          },
+          {
+            name: 'Products - With Specifications',
+            description: 'Products with detailed specs',
+            query: \`query ProductsWithSpecs {
+  products {
+    id
+    name
+    price
+    specifications {
+      brand
+      color
+      weight
+      dimensions
+    }
+  }
+}\`
+          },
+          {
+            name: 'Products by Category - Electronics',
+            description: 'Filter products by Electronics category',
+            query: \`query ElectronicsProducts {
+  products(category: "Electronics") {
+    id
+    name
+    description
+    price
+    currency
+    rating
+    reviews
+    specifications {
+      brand
+    }
+  }
+}\`
+          },
+          {
+            name: 'Products by Category - Wearables',
+            description: 'Filter products by Wearables category',
+            query: \`query WearablesProducts {
+  products(category: "Wearables") {
+    id
+    name
+    price
+    currency
+    inStock
+    quantity
+  }
+}\`
+          },
+          {
+            name: 'Products by Category - Accessories',
+            description: 'Filter products by Accessories category',
+            query: \`query AccessoriesProducts {
+  products(category: "Accessories") {
+    id
+    name
+    description
+    price
+    tags
+  }
+}\`
+          },
+          {
+            name: 'In Stock Products',
+            description: 'Get only available products',
+            query: \`query InStockProducts {
+  products {
+    id
+    name
+    price
+    inStock
+    quantity
+  }
+}\`
+          },
+          {
+            name: 'Product Ratings & Reviews',
+            description: 'Focus on ratings and review counts',
+            query: \`query ProductRatings {
+  products {
+    id
+    name
+    rating
+    reviews
+    price
+    currency
+  }
+}\`
+          },
+          {
+            name: 'Multiple Products by ID',
+            description: 'Query multiple specific products',
+            query: \`query MultipleProducts {
+  product1: getProductById(id: "1") {
+    name
+    price
+    inStock
+  }
+  product2: getProductById(id: "2") {
+    name
+    price
+    inStock
+  }
+  product3: getProductById(id: "xyz") {
+    name
+    price
+    inStock
+  }
+}\`
+          },
+          {
+            name: 'Product Catalog View',
+            description: 'Optimized for catalog display',
+            query: \`query ProductCatalog {
+  products {
+    id
+    name
+    description
+    price
+    currency
+    imageUrl
+    rating
+    reviews
+    inStock
+    tags
+  }
+}\`
+          },
+          {
+            name: 'Product Detail View',
+            description: 'Complete product detail page data',
+            query: \`query ProductDetail {
+  getProductById(id: "1") {
+    id
+    name
+    description
+    price
+    currency
+    category
+    inStock
+    quantity
+    imageUrl
+    rating
+    reviews
+    specifications {
+      weight
+      dimensions
+      color
+      brand
+    }
+    tags
+  }
+}\`
+          },
+          {
+            name: 'Products - Inventory Check',
+            description: 'Stock and quantity information',
+            query: \`query InventoryCheck {
+  products {
+    id
+    name
+    inStock
+    quantity
+    category
+  }
+}\`
+          },
+          {
+            name: 'Products - Pricing Info',
+            description: 'Price and currency details',
+            query: \`query ProductPricing {
+  products {
+    id
+    name
+    price
+    currency
+    category
+  }
+}\`
+          },
+          {
+            name: 'Products by Tags',
+            description: 'Products with their tags',
+            query: \`query ProductsByTags {
+  products {
+    id
+    name
+    tags
+    category
+    price
+  }
+}\`
+          },
+          {
+            name: 'Product Specifications Only',
+            description: 'Focus on product specs',
+            query: \`query ProductSpecifications {
+  products {
+    id
+    name
+    specifications {
+      brand
+      color
+      weight
+      dimensions
+    }
+  }
+}\`
+          }
+        ]
+      },
+      {
+        name: 'Category Queries',
+        icon: '📁',
+        queries: [
+          {
+            name: 'All Categories',
+            description: 'Get all product categories',
+            query: \`query GetCategories {
+  categories {
+    id
+    name
+    description
+    slug
+    imageUrl
+    parentId
+  }
+}\`
+          },
+          {
+            name: 'Category by ID',
+            description: 'Get single category',
+            query: \`query GetCategory {
+  getCategoryById(id: "cat-electronics") {
+    id
+    name
+    description
+    slug
+    imageUrl
+  }
+}\`
+          },
+          {
+            name: 'Products with Category Data',
+            description: 'Combined product and category query',
+            query: \`query ProductsWithCategories {
+  products {
+    id
+    name
+    categoryId
+    text
+    price
+  }
+  categories {
+    id
+    name
+    description
+  }
+}\`
+          },
+          {
+            name: 'Product with Template Resolution',
+            description: 'Product with text containing {{placeholders}}',
+            query: \`query ProductWithTemplate {
+  getProductById(id: "1") {
+    id
+    name
+    categoryId
+    text
+    description
+  }
+  getCategoryById(id: "cat-electronics") {
+    id
+    name
+    description
+  }
+}\`
+          },
+          {
+            name: 'Products by CategoryId',
+            description: 'Filter products using categoryId',
+            query: \`query ProductsByCategoryId {
+  electronics: products(category: "Electronics") {
+    id
+    name
+    categoryId
+    text
+  }
+  
+  category: getCategoryById(id: "cat-electronics") {
+    name
+    description
   }
 }\`
           }
@@ -1533,6 +1898,317 @@ export const graphqlPlaygroundHtml = `
         ]
       },
       {
+        name: 'OpenAPI Schema Queries',
+        icon: '📋',
+        queries: [
+          {
+            name: 'OpenAPI Product Schema Type',
+            description: 'Get Product type from GraphQL schema',
+            query: \`query OpenAPIProductType {
+  __type(name: "Product") {
+    name
+    kind
+    description
+    fields {
+      name
+      description
+      type {
+        name
+        kind
+        ofType {
+          name
+          kind
+        }
+      }
+    }
+  }
+}\`
+          },
+          {
+            name: 'Product Specifications Type',
+            description: 'Get ProductSpecifications type details',
+            query: \`query ProductSpecsType {
+  __type(name: "ProductSpecifications") {
+    name
+    kind
+    description
+    fields {
+      name
+      description
+      type {
+        name
+        kind
+      }
+    }
+  }
+}\`
+          },
+          {
+            name: 'Product Query Fields',
+            description: 'List all product-related queries',
+            query: \`query ProductQueryFields {
+  __type(name: "Query") {
+    fields {
+      name
+      description
+      args {
+        name
+        description
+        type {
+          name
+          kind
+        }
+      }
+      type {
+        name
+        kind
+      }
+    }
+  }
+}\`
+          },
+          {
+            name: 'Complete Product Schema',
+            description: 'Full Product type introspection',
+            query: \`query CompleteProductSchema {
+  productType: __type(name: "Product") {
+    name
+    kind
+    description
+    fields {
+      name
+      description
+      type {
+        name
+        kind
+        ofType {
+          name
+          kind
+          ofType {
+            name
+            kind
+          }
+        }
+      }
+    }
+  }
+  
+  specificationsType: __type(name: "ProductSpecifications") {
+    name
+    fields {
+      name
+      type {
+        name
+      }
+    }
+  }
+  
+  productQueries: __type(name: "Query") {
+    fields {
+      name
+      description
+      args {
+        name
+        type {
+          name
+        }
+      }
+    }
+  }
+}\`
+          },
+          {
+            name: 'Product Field Details',
+            description: 'Detailed field information',
+            query: \`{
+  __type(name: "Product") {
+    fields {
+      name
+      description
+      type {
+        name
+        kind
+      }
+      isDeprecated
+      deprecationReason
+    }
+  }
+}\`
+          }
+        ]
+      },
+      {
+        name: 'Countries API',
+        icon: '🌍',
+        queries: [
+          {
+            name: 'All Countries',
+            description: 'Get all countries with basic info',
+            query: \`query GetAllCountries {
+  countries {
+    code
+    name
+    capital
+    currency
+    emoji
+  }
+}\`
+          },
+          {
+            name: 'Country by Code',
+            description: 'Get specific country (e.g., US)',
+            query: \`query GetCountryByCode {
+  country(code: "US") {
+    code
+    name
+    native
+    capital
+    emoji
+    currency
+    languages {
+      code
+      name
+    }
+  }
+}\`
+          },
+          {
+            name: 'Countries with Languages',
+            description: 'Get countries with their languages',
+            query: \`query CountriesWithLanguages {
+  countries {
+    name
+    code
+    languages {
+      code
+      name
+      native
+    }
+  }
+}\`
+          },
+          {
+            name: 'Countries by Continent',
+            description: 'Get countries in Europe',
+            query: \`query CountriesByContinent {
+  continent(code: "EU") {
+    name
+    countries {
+      code
+      name
+      capital
+      currency
+    }
+  }
+}\`
+          },
+          {
+            name: 'All Continents',
+            description: 'Get all continents',
+            query: \`query GetContinents {
+  continents {
+    code
+    name
+  }
+}\`
+          },
+          {
+            name: 'Language Details',
+            description: 'Get specific language info',
+            query: \`query GetLanguage {
+  language(code: "en") {
+    code
+    name
+    native
+    rtl
+  }
+}\`
+          },
+          {
+            name: 'Country Full Details',
+            description: 'Complete country information',
+            query: \`query CountryFullDetails {
+  country(code: "FR") {
+    code
+    name
+    native
+    phone
+    capital
+    currency
+    emoji
+    emojiU
+    continent {
+      code
+      name
+    }
+    languages {
+      code
+      name
+      native
+    }
+    states {
+      code
+      name
+    }
+  }
+}\`
+          },
+          {
+            name: 'Multiple Countries',
+            description: 'Query multiple specific countries',
+            query: \`query MultipleCountries {
+  us: country(code: "US") {
+    name
+    capital
+    currency
+  }
+  uk: country(code: "GB") {
+    name
+    capital
+    currency
+  }
+  japan: country(code: "JP") {
+    name
+    capital
+    currency
+  }
+}\`
+          },
+          {
+            name: 'Countries with States',
+            description: 'Countries with their states/regions',
+            query: \`query CountriesWithStates {
+  country(code: "US") {
+    name
+    states {
+      code
+      name
+    }
+  }
+}\`
+          },
+          {
+            name: 'Continent with Details',
+            description: 'Continent with nested country info',
+            query: \`query ContinentDetails {
+  continent(code: "AS") {
+    name
+    code
+    countries {
+      name
+      capital
+      currency
+      emoji
+      languages {
+        name
+      }
+    }
+  }
+}\`
+          }
+        ]
+      },
+      {
         name: 'GET Examples',
         icon: '🔗',
         queries: [
@@ -1583,6 +2259,48 @@ export const graphqlPlaygroundHtml = `
             description: 'Introspect schema types',
             query: '{__schema{types{name}}}',
             getUrl: '/graphql?query={__schema{types{name}}}'
+          },
+          {
+            name: 'GET: All Products',
+            description: 'Fetch all products via GET',
+            query: '{products{id name price currency inStock}}',
+            getUrl: '/graphql?query={products{id name price currency inStock}}'
+          },
+          {
+            name: 'GET: Product by ID',
+            description: 'Get product by ID via GET',
+            query: '{getProductById(id:"1"){id name price inStock}}',
+            getUrl: '/graphql?query={getProductById(id:"1"){id name price inStock}}'
+          },
+          {
+            name: 'GET: Products by Category',
+            description: 'Filter products by Electronics',
+            query: '{products(category:"Electronics"){id name price}}',
+            getUrl: '/graphql?query={products(category:"Electronics"){id name price}}'
+          },
+          {
+            name: 'GET: Product with Specs',
+            description: 'Get product with specifications',
+            query: '{getProductById(id:"1"){name price specifications{brand color}}}',
+            getUrl: '/graphql?query={getProductById(id:"1"){name price specifications{brand color}}}'
+          },
+          {
+            name: 'GET: All Categories',
+            description: 'Fetch all categories',
+            query: '{categories{id name description}}',
+            getUrl: '/graphql?query={categories{id name description}}'
+          },
+          {
+            name: 'GET: Category by ID',
+            description: 'Get category by ID',
+            query: '{getCategoryById(id:"cat-electronics"){name description}}',
+            getUrl: '/graphql?query={getCategoryById(id:"cat-electronics"){name description}}'
+          },
+          {
+            name: 'GET: Product with CategoryId',
+            description: 'Product with category reference',
+            query: '{getProductById(id:"1"){name categoryId text}}',
+            getUrl: '/graphql?query={getProductById(id:"1"){name categoryId text}}'
           }
         ]
       }
