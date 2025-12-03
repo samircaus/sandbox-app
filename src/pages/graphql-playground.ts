@@ -1363,8 +1363,8 @@ export const graphqlPlaygroundHtml = `
 }
 
 # Add to request body:
-# { "query": "...", "batchIndex": 0 }
-# Response: { "data": { "_0_user": {...} } }\`
+# ${'{ "query": "...", "batchIndex": 0 }'}
+# Response: ${'{ "data": { "_0_user": {...} } }'}\`
           },
           {
             name: 'City List with Batch Index 0',
@@ -1380,8 +1380,8 @@ export const graphqlPlaygroundHtml = `
 }
 
 # Add to request body:
-# { "query": "...", "batchIndex": 0 }
-# Response: { "data": { "_0_cityList": {...} } }\`
+# ${'{ "query": "...", "batchIndex": 0 }'}
+# Response: ${'{ "data": { "_0_cityList": {...} } }'}\`
           },
           {
             name: 'Products with Batch Index 1',
@@ -1396,8 +1396,8 @@ export const graphqlPlaygroundHtml = `
 }
 
 # Add to request body:
-# { "query": "...", "batchIndex": 1 }
-# Response: { "data": { "_1_products": [...] } }\`
+# ${'{ "query": "...", "batchIndex": 1 }'}
+# Response: ${'{ "data": { "_1_products": [...] } }'}\`
           },
           {
             name: 'Person List with Batch Index 2',
@@ -1412,8 +1412,8 @@ export const graphqlPlaygroundHtml = `
 }
 
 # Add to request body:
-# { "query": "...", "batchIndex": 2 }
-# Response: { "data": { "_2_personList": {...} } }\`
+# ${'{ "query": "...", "batchIndex": 2 }'}
+# Response: ${'{ "data": { "_2_personList": {...} } }'}\`
           },
           {
             name: 'Adventure List with Batch Index 3',
@@ -1429,8 +1429,8 @@ export const graphqlPlaygroundHtml = `
 }
 
 # Add to request body:
-# { "query": "...", "batchIndex": 3 }
-# Response: { "data": { "_3_adventureList": {...} } }\`
+# ${'{ "query": "...", "batchIndex": 3 }'}
+# Response: ${'{ "data": { "_3_adventureList": {...} } }'}\`
           },
           {
             name: 'Company Query with Batch Index 0',
@@ -1448,8 +1448,8 @@ export const graphqlPlaygroundHtml = `
 }
 
 # Add to request body:
-# { "query": "...", "batchIndex": 0 }
-# Response: { "data": { "_0_companyList": {...} } }\`
+# ${'{ "query": "...", "batchIndex": 0 }'}
+# Response: ${'{ "data": { "_0_companyList": {...} } }'}\`
           }
         ]
       },
