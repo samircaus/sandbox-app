@@ -340,16 +340,85 @@ export const graphqlSchema = {
         inputFields: null
       },
       {
+        kind: 'ENUM',
+        name: 'FilterOperator',
+        description: 'Filter operators for string and numeric comparisons',
+        fields: null,
+        interfaces: null,
+        possibleTypes: null,
+        enumValues: [
+          { name: 'EQUALS', description: 'Equals comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'EQUALS_NOT', description: 'Not equals comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'CONTAINS', description: 'Contains comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'CONTAINS_NOT', description: 'Does not contain comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'STARTS_WITH', description: 'Starts with comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'ENDS_WITH', description: 'Ends with comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'GREATER', description: 'Greater than comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'GREATER_EQUAL', description: 'Greater than or equal comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'LOWER', description: 'Lower than comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'LOWER_EQUAL', description: 'Lower than or equal comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'AT', description: 'At comparison', isDeprecated: false, deprecationReason: null },
+          { name: 'NOT_AT', description: 'Not at comparison', isDeprecated: false, deprecationReason: null }
+        ],
+        inputFields: null
+      },
+      {
         kind: 'INPUT_OBJECT',
-        name: 'FilterInput',
-        description: 'Input type for filtering queries',
+        name: 'FilterExpressionInput',
+        description: 'Expression for a single filter condition',
         fields: null,
         interfaces: null,
         possibleTypes: null,
         enumValues: null,
         inputFields: [
-          { name: 'field', description: 'Field to filter on', type: { kind: 'SCALAR', name: 'String' }, defaultValue: null },
-          { name: 'value', description: 'Value to match', type: { kind: 'SCALAR', name: 'String' }, defaultValue: null }
+          { name: 'value', description: 'The value to compare against', type: { kind: 'NON_NULL', ofType: { kind: 'SCALAR', name: 'String' } }, defaultValue: null },
+          { name: '_operator', description: 'The comparison operator', type: { kind: 'ENUM', name: 'FilterOperator' }, defaultValue: null }
+        ]
+      },
+      {
+        kind: 'INPUT_OBJECT',
+        name: 'StringFilterInput',
+        description: 'Filter input for string fields',
+        fields: null,
+        interfaces: null,
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: [
+          { name: '_expressions', description: 'List of filter expressions', type: { kind: 'LIST', ofType: { kind: 'NON_NULL', ofType: { kind: 'INPUT_OBJECT', name: 'FilterExpressionInput' } } }, defaultValue: null },
+          { name: '_logOp', description: 'Logical operator to combine expressions (AND/OR)', type: { kind: 'SCALAR', name: 'String' }, defaultValue: null }
+        ]
+      },
+      {
+        kind: 'INPUT_OBJECT',
+        name: 'IntFilterInput',
+        description: 'Filter input for integer fields',
+        fields: null,
+        interfaces: null,
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: [
+          { name: '_expressions', description: 'List of filter expressions', type: { kind: 'LIST', ofType: { kind: 'NON_NULL', ofType: { kind: 'INPUT_OBJECT', name: 'FilterExpressionInput' } } }, defaultValue: null },
+          { name: '_logOp', description: 'Logical operator to combine expressions (AND/OR)', type: { kind: 'SCALAR', name: 'String' }, defaultValue: null }
+        ]
+      },
+      {
+        kind: 'INPUT_OBJECT',
+        name: 'FilterInput',
+        description: 'Filter input with field-specific filters',
+        fields: null,
+        interfaces: null,
+        possibleTypes: null,
+        enumValues: null,
+        inputFields: [
+          { name: 'name', description: 'Filter on name field', type: { kind: 'INPUT_OBJECT', name: 'StringFilterInput' }, defaultValue: null },
+          { name: 'firstName', description: 'Filter on firstName field', type: { kind: 'INPUT_OBJECT', name: 'StringFilterInput' }, defaultValue: null },
+          { name: 'title', description: 'Filter on title field', type: { kind: 'INPUT_OBJECT', name: 'StringFilterInput' }, defaultValue: null },
+          { name: 'description', description: 'Filter on description field', type: { kind: 'INPUT_OBJECT', name: 'StringFilterInput' }, defaultValue: null },
+          { name: 'country', description: 'Filter on country field', type: { kind: 'INPUT_OBJECT', name: 'StringFilterInput' }, defaultValue: null },
+          { name: 'adventureType', description: 'Filter on adventure type', type: { kind: 'INPUT_OBJECT', name: 'StringFilterInput' }, defaultValue: null },
+          { name: 'population', description: 'Filter on population', type: { kind: 'INPUT_OBJECT', name: 'IntFilterInput' }, defaultValue: null },
+          { name: 'price', description: 'Filter on price', type: { kind: 'INPUT_OBJECT', name: 'IntFilterInput' }, defaultValue: null },
+          { name: '_path', description: 'Filter on path', type: { kind: 'INPUT_OBJECT', name: 'StringFilterInput' }, defaultValue: null }
         ]
       },
       {
