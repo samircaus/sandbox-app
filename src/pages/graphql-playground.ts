@@ -314,6 +314,58 @@ export const graphqlPlaygroundHtml = `
       text-align: center;
       padding: 20px;
     }
+    .query-category {
+      margin-bottom: 20px;
+    }
+    .category-header {
+      padding: 10px;
+      background: #e9ecef;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+      user-select: none;
+      margin-bottom: 0;
+    }
+    .category-header:hover {
+      background: #dee2e6;
+    }
+    .category-header.expanded {
+      margin-bottom: 0;
+    }
+    .category-toggle {
+      font-size: 12px;
+      transition: transform 0.2s;
+      transform: rotate(-90deg);
+    }
+    .category-header.expanded .category-toggle {
+      transform: rotate(0deg);
+    }
+    .category-queries {
+      margin-top: 8px;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+      opacity: 0;
+      margin-top: 0;
+    }
+    .category-queries.expanded {
+      max-height: 2000px;
+      opacity: 1;
+      margin-top: 8px;
+    }
+    .category-count {
+      font-size: 11px;
+      background: #6c757d;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
@@ -324,14 +376,8 @@ export const graphqlPlaygroundHtml = `
     
     <div class="layout">
       <div class="sidebar">
-        <h2>Sample Queries</h2>
-        <ul class="query-list" id="queryList"></ul>
-        
-        <h2 style="margin-top: 30px;">Persisted Queries</h2>
-        <ul class="query-list" id="persistedQueryList"></ul>
-        
-        <h2 style="margin-top: 30px;">GET Examples</h2>
-        <ul class="query-list" id="getQueryList"></ul>
+        <h2 style="margin-bottom: 20px;">Query Library</h2>
+        <div id="queryCategories"></div>
       </div>
       
       <div class="main-content">
@@ -401,11 +447,15 @@ export const graphqlPlaygroundHtml = `
   </div>
   
   <script>
-    const sampleQueries = [
+    const queryCategories = [
       {
-        name: 'Schema Introspection',
-        description: 'All available types',
-        query: \`{
+        name: 'Introspection',
+        icon: '🔍',
+        queries: [
+          {
+            name: 'Schema Introspection',
+            description: 'All available types',
+            query: \`{
   __schema {
     types {
       name
@@ -413,11 +463,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: '__TypeKind Enum Values',
-        description: 'Introspect enum values',
-        query: \`{
+          },
+          {
+            name: '__TypeKind Enum Values',
+            description: 'Introspect enum values',
+            query: \`{
   __type(name: "__TypeKind") {
     name
     kind
@@ -428,18 +478,24 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
+          }
+        ]
       },
       {
-        name: 'Hello Query',
-        description: 'Simple greeting query',
-        query: \`query {
+        name: 'Basic Queries',
+        icon: '⚡',
+        queries: [
+          {
+            name: 'Hello Query',
+            description: 'Simple greeting query',
+            query: \`query {
   hello
 }\`
-      },
-      {
-        name: 'All Users',
-        description: 'Fetch all users',
-        query: \`query {
+          },
+          {
+            name: 'All Users',
+            description: 'Fetch all users',
+            query: \`query {
   users {
     id
     name
@@ -447,11 +503,17 @@ export const graphqlPlaygroundHtml = `
     role
   }
 }\`
+          }
+        ]
       },
       {
-        name: 'All Cities',
-        description: 'Fetch all cities',
-        query: \`{
+        name: 'City Queries',
+        icon: '🏙️',
+        queries: [
+          {
+            name: 'All Cities',
+            description: 'Fetch all cities',
+            query: \`{
   cityList {
     items {
       _path
@@ -461,22 +523,22 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'City Names Only',
-        description: 'Return just city names',
-        query: \`query {
+          },
+          {
+            name: 'City Names Only',
+            description: 'Return just city names',
+            query: \`query {
   cityList {
     items {
       name
     }
   }
 }\`
-      },
-      {
-        name: 'Single City by Path',
-        description: 'Get Berlin city details',
-        query: \`{
+          },
+          {
+            name: 'Single City by Path',
+            description: 'Get Berlin city details',
+            query: \`{
   cityByPath(_path: "/content/dam/sample-content-fragments/cities/berlin") {
     item {
       _path
@@ -487,18 +549,23 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
+          }
+        ]
       },
       {
-        name: 'Cities with SAN (case-insensitive)',
-        description: 'Filter cities containing "SAN"',
-        query: \`query {
+        name: 'Filter: String Operators',
+        icon: '🔤',
+        queries: [
+          {
+            name: 'Name CONTAINS',
+            description: 'Cities containing "SAN"',
+            query: \`query {
   cityList(filter: {
     name: {
       _expressions: [
         {
           value: "SAN"
           _operator: CONTAINS
-          _ignoreCase: true
         }
       ]
     }
@@ -510,28 +577,246 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
+          },
+          {
+            name: 'Name STARTS_WITH',
+            description: 'Cities starting with "San"',
+            query: \`query {
+  cityList(filter: {
+    name: {
+      _expressions: [
+        {
+          value: "San"
+          _operator: STARTS_WITH
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      country
+    }
+  }
+}\`
+          },
+          {
+            name: 'Name ENDS_WITH',
+            description: 'Cities ending with "lin"',
+            query: \`query {
+  cityList(filter: {
+    name: {
+      _expressions: [
+        {
+          value: "lin"
+          _operator: ENDS_WITH
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      country
+    }
+  }
+}\`
+          },
+          {
+            name: 'Name EQUALS',
+            description: 'Exact name match',
+            query: \`query {
+  cityList(filter: {
+    name: {
+      _expressions: [
+        {
+          value: "Berlin"
+          _operator: EQUALS
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      country
+      population
+    }
+  }
+}\`
+          },
+          {
+            name: 'Name EQUALS_NOT',
+            description: 'Cities not named Berlin',
+            query: \`query {
+  cityList(filter: {
+    name: {
+      _expressions: [
+        {
+          value: "Berlin"
+          _operator: EQUALS_NOT
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      country
+    }
+  }
+}\`
+          }
+        ]
       },
       {
-        name: 'Cities by Population Range',
-        description: 'Germany/Switzerland, 400k-999k pop',
-        query: \`query {
+        name: 'Filter: Numeric Operators',
+        icon: '🔢',
+        queries: [
+          {
+            name: 'Population GREATER',
+            description: 'Cities with population > 1M',
+            query: \`query {
   cityList(filter: {
     population: {
       _expressions: [
         {
-          value: 400000
+          value: "1000000"
+          _operator: GREATER
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      population
+      country
+    }
+  }
+}\`
+          },
+          {
+            name: 'Population GREATER_EQUAL',
+            description: 'Cities with population >= 1M',
+            query: \`query {
+  cityList(filter: {
+    population: {
+      _expressions: [
+        {
+          value: "1000000"
           _operator: GREATER_EQUAL
-        }, {
-          value: 1000000
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      population
+      country
+    }
+  }
+}\`
+          },
+          {
+            name: 'Population LOWER',
+            description: 'Cities with population < 500k',
+            query: \`query {
+  cityList(filter: {
+    population: {
+      _expressions: [
+        {
+          value: "500000"
+          _operator: LOWER
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      population
+      country
+    }
+  }
+}\`
+          },
+          {
+            name: 'Population LOWER_EQUAL',
+            description: 'Cities with population <= 500k',
+            query: \`query {
+  cityList(filter: {
+    population: {
+      _expressions: [
+        {
+          value: "500000"
+          _operator: LOWER_EQUAL
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      population
+      country
+    }
+  }
+}\`
+          },
+          {
+            name: 'Population Range (AND)',
+            description: 'Cities with 400k-999k population',
+            query: \`query {
+  cityList(filter: {
+    population: {
+      _expressions: [
+        {
+          value: "400000"
+          _operator: GREATER_EQUAL
+        },
+        {
+          value: "1000000"
+          _operator: LOWER
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      population
+      country
+    }
+  }
+}\`
+          }
+        ]
+      },
+      {
+        name: 'Filter: Complex',
+        icon: '🎯',
+        queries: [
+          {
+            name: 'Multiple Fields',
+            description: 'Germany/Switzerland, 400k-999k pop',
+            query: \`query {
+  cityList(filter: {
+    population: {
+      _expressions: [
+        {
+          value: "400000"
+          _operator: GREATER_EQUAL
+        },
+        {
+          value: "1000000"
           _operator: LOWER
         }
       ]
     },
     country: {
-      _logOp: OR
+      _logOp: "OR"
       _expressions: [
-        { value: "Germany" }, 
-        { value: "Switzerland" }
+        {
+          value: "Germany"
+          _operator: EQUALS
+        },
+        {
+          value: "Switzerland"
+          _operator: EQUALS
+        }
       ]
     }
   }) {
@@ -542,11 +827,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Cities with Array Filter',
-        description: 'Cities with "city:na" category',
-        query: \`query {
+          },
+          {
+            name: 'Cities with Array Filter',
+            description: 'Cities with "city:na" category',
+            query: \`query {
   cityList(filter: {
     categories: {
       _expressions: [
@@ -565,11 +850,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Cities Tagged City Break',
-        description: 'Filter by _tags field',
-        query: \`query {
+          },
+          {
+            name: 'Cities Tagged City Break',
+            description: 'Filter by _tags field',
+            query: \`query {
   cityList(filter: {
     _tags: {
       _expressions: [{
@@ -584,11 +869,52 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
+          },
+          {
+            name: 'All Filter Operators Demo',
+            description: 'Comprehensive showcase',
+            query: \`query AllFilterOperatorsDemo {
+  equals: cityList(filter: {
+    name: {
+      _expressions: [
+        { value: "Berlin", _operator: EQUALS }
+      ]
+    }
+  }) {
+    items { name country }
+  }
+  
+  contains: cityList(filter: {
+    name: {
+      _expressions: [
+        { value: "San", _operator: CONTAINS }
+      ]
+    }
+  }) {
+    items { name }
+  }
+  
+  greater: cityList(filter: {
+    population: {
+      _expressions: [
+        { value: "1000000", _operator: GREATER }
+      ]
+    }
+  }) {
+    items { name population }
+  }
+}\`
+          }
+        ]
       },
       {
-        name: 'All Persons',
-        description: 'Fetch all persons',
-        query: \`query {
+        name: 'Person Queries',
+        icon: '👤',
+        queries: [
+          {
+            name: 'All Persons',
+            description: 'Fetch all persons',
+            query: \`query {
   personList {
     items {
       name
@@ -596,17 +922,23 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Persons: Jobs or Smith',
-        description: 'Filter with OR logic',
-        query: \`query {
+          },
+          {
+            name: 'Person Name OR Logic',
+            description: 'Name is Jobs OR Smith',
+            query: \`query {
   personList(filter: {
     name: {
-      _logOp: OR
+      _logOp: "OR"
       _expressions: [
-        { value: "Jobs" },
-        { value: "Smith" }
+        {
+          value: "Jobs"
+          _operator: EQUALS
+        },
+        {
+          value: "Smith"
+          _operator: EQUALS
+        }
       ]
     }
   }) {
@@ -616,11 +948,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Persons Not Named Jobs',
-        description: 'EQUALS_NOT operator',
-        query: \`query {
+          },
+          {
+            name: 'Person Name EQUALS_NOT',
+            description: 'Persons not named Jobs',
+            query: \`query {
   personList(filter: {
     name: {
       _expressions: [
@@ -637,11 +969,67 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
+          },
+          {
+            name: 'Person FirstName CONTAINS',
+            description: 'FirstName contains "oh"',
+            query: \`query {
+  personList(filter: {
+    firstName: {
+      _expressions: [
+        {
+          value: "oh"
+          _operator: CONTAINS
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      firstName
+    }
+  }
+}\`
+          },
+          {
+            name: 'Person Multiple Fields',
+            description: 'FirstName AND Name filters',
+            query: \`query {
+  personList(filter: {
+    firstName: {
+      _expressions: [
+        {
+          value: "S"
+          _operator: STARTS_WITH
+        }
+      ]
+    },
+    name: {
+      _expressions: [
+        {
+          value: "Jobs"
+          _operator: EQUALS_NOT
+        }
+      ]
+    }
+  }) {
+    items {
+      name
+      firstName
+    }
+  }
+}\`
+          }
+        ]
       },
       {
-        name: 'Company CEO and Employees',
-        description: 'Nested fragment query',
-        query: \`query {
+        name: 'Company Queries',
+        icon: '🏢',
+        queries: [
+          {
+            name: 'Company CEO and Employees',
+            description: 'Nested fragment query',
+            query: \`query {
   companyList {
     items {
       name
@@ -665,11 +1053,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Companies with Employee Smith',
-        description: 'Nested filter with _match',
-        query: \`query {
+          },
+          {
+            name: 'Companies with Employee Smith',
+            description: 'Nested filter with _match',
+            query: \`query {
   companyList(filter: {
     employees: {
       _match: {
@@ -694,11 +1082,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Companies: All Employees won GS',
-        description: 'Deep nested filter with ALL',
-        query: \`query {
+          },
+          {
+            name: 'All Employees won GS',
+            description: 'Deep nested filter with ALL',
+            query: \`query {
   companyList(filter: {
     employees: {
       _apply: ALL
@@ -735,11 +1123,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Awards Metadata',
-        description: 'Query metadata for GB award',
-        query: \`query {
+          },
+          {
+            name: 'Awards Metadata',
+            description: 'Query metadata for GB award',
+            query: \`query {
   awardList(filter: {
     id: {
       _expressions: [
@@ -759,11 +1147,17 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
+          }
+        ]
       },
       {
-        name: 'Adventures with STARTS_WITH',
-        description: 'Filter by path prefix',
-        query: \`query {
+        name: 'Adventure Queries',
+        icon: '🎿',
+        queries: [
+          {
+            name: 'Adventure Path STARTS_WITH',
+            description: 'Filter by path prefix',
+            query: \`query {
   adventureList(filter: {
     _path: {
       _expressions: [
@@ -777,14 +1171,152 @@ export const graphqlPlaygroundHtml = `
     items {
       _path
       title
+      adventureType
     }
   }
 }\`
+          },
+          {
+            name: 'Adventure Title CONTAINS',
+            description: 'Title contains "Surf"',
+            query: \`query {
+  adventureList(filter: {
+    title: {
+      _expressions: [
+        {
+          value: "Surf"
+          _operator: CONTAINS
+        }
+      ]
+    }
+  }) {
+    items {
+      title
+      description
+      price
+    }
+  }
+}\`
+          },
+          {
+            name: 'Adventure Type EQUALS',
+            description: 'Filter by adventure type',
+            query: \`query {
+  adventureList(filter: {
+    adventureType: {
+      _expressions: [
+        {
+          value: "Camping"
+          _operator: EQUALS
+        }
+      ]
+    }
+  }) {
+    items {
+      title
+      adventureType
+      price
+    }
+  }
+}\`
+          },
+          {
+            name: 'Adventure Price Range',
+            description: 'Price between $100-$500',
+            query: \`query {
+  adventureList(filter: {
+    price: {
+      _expressions: [
+        {
+          value: "100"
+          _operator: GREATER_EQUAL
+        },
+        {
+          value: "500"
+          _operator: LOWER_EQUAL
+        }
+      ]
+    }
+  }) {
+    items {
+      title
+      price
+      adventureType
+    }
+  }
+}\`
+          },
+          {
+            name: 'Adventure Description CONTAINS_NOT',
+            description: 'Description does not contain "beginner"',
+            query: \`query {
+  adventureList(filter: {
+    description: {
+      _expressions: [
+        {
+          value: "beginner"
+          _operator: CONTAINS_NOT
+        }
+      ]
+    }
+  }) {
+    items {
+      title
+      description
+      adventureType
+    }
+  }
+}\`
+          },
+          {
+            name: 'Adventure Complex Filter',
+            description: 'Type=Camping, Price<$300, Title has "Mountain"',
+            query: \`query {
+  adventureList(filter: {
+    adventureType: {
+      _expressions: [
+        {
+          value: "Camping"
+          _operator: EQUALS
+        }
+      ]
+    },
+    price: {
+      _expressions: [
+        {
+          value: "300"
+          _operator: LOWER
+        }
+      ]
+    },
+    title: {
+      _expressions: [
+        {
+          value: "Mountain"
+          _operator: CONTAINS
+        }
+      ]
+    }
+  }) {
+    items {
+      title
+      adventureType
+      price
+      description
+    }
+  }
+}\`
+          }
+        ]
       },
       {
-        name: 'Pagination with offset/limit',
-        description: 'Skip 5, get next 5 cities',
-        query: \`{
+        name: 'Pagination',
+        icon: '📄',
+        queries: [
+          {
+            name: 'Offset/Limit Pagination',
+            description: 'Skip 5, get next 5 cities',
+            query: \`{
   cityList(offset: 5, limit: 5) {
     items {
       name
@@ -793,11 +1325,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Cursor-based Pagination',
-        description: 'Adventures with cursors',
-        query: \`{
+          },
+          {
+            name: 'Cursor-based Pagination',
+            description: 'Adventures with cursors',
+            query: \`{
   adventurePaginated(first: 5) {
     edges {
       cursor
@@ -811,14 +1343,122 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      }
-    ];
-    
-    const persistedQueries = [
+          }
+        ]
+      },
       {
-        name: 'Dashboard Query',
-        description: 'Combined query for dashboard',
-        query: \`query DashboardData {
+        name: 'Batch Queries',
+        icon: '📦',
+        queries: [
+          {
+            name: 'Multiple Users by ID',
+            description: 'Batch request for 3 different users',
+            query: \`[
+  {
+    "query": "{ user(id: \\\\"1\\\\") { id name email role } }"
+  },
+  {
+    "query": "{ user(id: \\\\"2\\\\") { id name email role } }"
+  },
+  {
+    "query": "{ user(id: \\\\"3\\\\") { id name email role } }"
+  }
+]\`
+          },
+          {
+            name: 'Mixed Entity Types',
+            description: 'Batch different queries together',
+            query: \`[
+  {
+    "query": "{ hello }"
+  },
+  {
+    "query": "{ users { id name email role } }"
+  },
+  {
+    "query": "{ products(category: \\\\"electronics\\\\") { id name price inStock } }"
+  },
+  {
+    "query": "{ cityList(limit: 5) { items { name country population } } }"
+  }
+]\`
+          },
+          {
+            name: 'Multiple Filters',
+            description: 'Batch queries with different filters',
+            query: \`[
+  {
+    "query": "query LargeCities { cityList(filter: { population: { _expressions: [{ value: \\\\"1000000\\\\", _operator: GREATER }] } }) { items { name population country } } }"
+  },
+  {
+    "query": "query SmallCities { cityList(filter: { population: { _expressions: [{ value: \\\\"500000\\\\", _operator: LOWER }] } }) { items { name population country } } }"
+  },
+  {
+    "query": "query GermanCities { cityList(filter: { country: { _expressions: [{ value: \\\\"Germany\\\\", _operator: EQUALS }] } }) { items { name population country } } }"
+  }
+]\`
+          },
+          {
+            name: 'Product Queries',
+            description: 'Batch different product searches',
+            query: \`[
+  {
+    "query": "{ products(category: \\\\"electronics\\\\") { id name price inStock } }"
+  },
+  {
+    "query": "{ products(category: \\\\"books\\\\") { id name price inStock } }"
+  },
+  {
+    "query": "{ products(category: \\\\"clothing\\\\") { id name price inStock } }"
+  },
+  {
+    "query": "{ getProductById(id: \\\\"prod-1\\\\") { id name price category inStock } }"
+  }
+]\`
+          },
+          {
+            name: 'City Comparisons',
+            description: 'Compare multiple cities in parallel',
+            query: \`[
+  {
+    "query": "{ cityByPath(_path: \\\\"/content/dam/sample-content-fragments/cities/berlin\\\\") { item { name country population categories } } }"
+  },
+  {
+    "query": "{ cityByPath(_path: \\\\"/content/dam/sample-content-fragments/cities/san-francisco\\\\") { item { name country population categories } } }"
+  },
+  {
+    "query": "{ cityByPath(_path: \\\\"/content/dam/sample-content-fragments/cities/tokyo\\\\") { item { name country population categories } } }"
+  }
+]\`
+          },
+          {
+            name: 'Schema Introspection',
+            description: 'Batch introspection queries',
+            query: \`[
+  {
+    "query": "{ __schema { types { name kind } } }"
+  },
+  {
+    "query": "{ __type(name: \\\\"City\\\\") { name kind fields { name type { name kind } } } }"
+  },
+  {
+    "query": "{ __type(name: \\\\"FilterOperator\\\\") { name kind enumValues { name description } } }"
+  },
+  {
+    "query": "{ __type(name: \\\\"Query\\\\") { name fields { name description } } }"
+  }
+]\`
+          }
+        ]
+      },
+      {
+        name: 'Persisted Queries',
+        icon: '💾',
+        queries: [
+          {
+            name: 'Dashboard Query',
+            description: 'Combined query for dashboard',
+            query: \`query DashboardData {
   users {
     id
     name
@@ -832,11 +1472,11 @@ export const graphqlPlaygroundHtml = `
   }
   hello
 }\`
-      },
-      {
-        name: 'Content Fragment Dashboard',
-        description: 'Cities, persons, and companies',
-        query: \`query ContentDashboard {
+          },
+          {
+            name: 'Content Fragment Dashboard',
+            description: 'Cities, persons, and companies',
+            query: \`query ContentDashboard {
   cityList {
     items {
       name
@@ -860,11 +1500,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Travel Planning Query',
-        description: 'Cities for city breaks with adventures',
-        query: \`query TravelPlanning {
+          },
+          {
+            name: 'Travel Planning Query',
+            description: 'Cities for city breaks with adventures',
+            query: \`query TravelPlanning {
   cityList(filter: {
     _tags: {
       _expressions: [{
@@ -887,11 +1527,11 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
-      },
-      {
-        name: 'Organization Report',
-        description: 'Companies with award-winning staff',
-        query: \`query OrganizationReport {
+          },
+          {
+            name: 'Organization Report',
+            description: 'Companies with award-winning staff',
+            query: \`query OrganizationReport {
   companyList {
     items {
       name
@@ -918,121 +1558,126 @@ export const graphqlPlaygroundHtml = `
     }
   }
 }\`
+          }
+        ]
       },
       {
-        name: 'Batch Request Example',
-        description: 'Multiple queries with prefixed keys',
-        query: \`# Send as batch array to get prefixed keys
-# POST body should be an array:
-[
-  { "query": "{ user(id: \\\\"1\\\\") { name } }" },
-  { "query": "{ user(id: \\\\"2\\\\") { name } }" },
-  { "query": "{ products { name price } }" }
-]
-
-# Response will have keys:
-# _0_user, _1_user, _2_products
-
-# For single query with batch index, include:
-{ 
-  "query": "{ user(id: \\\\"1\\\\") { name } }",
-  "batchIndex": 0
-}
-# Response: { "data": { "_0_user": {...} } }\`
+        name: 'GET Examples',
+        icon: '🔗',
+        queries: [
+          {
+            name: 'GET: Hello',
+            description: 'Simple greeting via GET',
+            query: '{hello}',
+            getUrl: '/graphql?query={hello}'
+          },
+          {
+            name: 'GET: All Users',
+            description: 'Fetch all users via GET',
+            query: '{users{id name email role}}',
+            getUrl: '/graphql?query={users{id name email role}}'
+          },
+          {
+            name: 'GET: All Cities',
+            description: 'Fetch all cities via GET',
+            query: '{cityList{items{name country population}}}',
+            getUrl: '/graphql?query={cityList{items{name country population}}}'
+          },
+          {
+            name: 'GET: City by Path',
+            description: 'Fetch Berlin city details',
+            query: '{cityByPath(_path:"/content/dam/sample-content-fragments/cities/berlin"){item{name country population}}}',
+            getUrl: '/graphql?query={cityByPath(_path:"/content/dam/sample-content-fragments/cities/berlin"){item{name country population}}}'
+          },
+          {
+            name: 'GET: All Persons',
+            description: 'Fetch all persons via GET',
+            query: '{personList{items{firstName name}}}',
+            getUrl: '/graphql?query={personList{items{firstName name}}}'
+          },
+          {
+            name: 'GET: All Companies',
+            description: 'Fetch companies with CEO',
+            query: '{companyList{items{name ceo{firstName name}}}}',
+            getUrl: '/graphql?query={companyList{items{name ceo{firstName name}}}}'
+          },
+          {
+            name: 'GET: All Adventures',
+            description: 'Fetch all adventures',
+            query: '{adventureList{items{title adventureType price}}}',
+            getUrl: '/graphql?query={adventureList{items{title adventureType price}}}'
+          },
+          {
+            name: 'GET: Schema Types',
+            description: 'Introspect schema types',
+            query: '{__schema{types{name}}}',
+            getUrl: '/graphql?query={__schema{types{name}}}'
+          }
+        ]
       }
     ];
     
-    const getQueryExamples = [
-      {
-        name: 'GET: Hello',
-        description: 'Simple greeting via GET',
-        query: '{hello}',
-        getUrl: '/graphql?query={hello}'
-      },
-      {
-        name: 'GET: All Users',
-        description: 'Fetch all users via GET',
-        query: '{users{id name email role}}',
-        getUrl: '/graphql?query={users{id name email role}}'
-      },
-      {
-        name: 'GET: All Cities',
-        description: 'Fetch all cities via GET',
-        query: '{cityList{items{name country population}}}',
-        getUrl: '/graphql?query={cityList{items{name country population}}}'
-      },
-      {
-        name: 'GET: City by Path',
-        description: 'Fetch Berlin city details',
-        query: '{cityByPath(_path:"/content/dam/sample-content-fragments/cities/berlin"){item{name country population}}}',
-        getUrl: '/graphql?query={cityByPath(_path:"/content/dam/sample-content-fragments/cities/berlin"){item{name country population}}}'
-      },
-      {
-        name: 'GET: All Persons',
-        description: 'Fetch all persons via GET',
-        query: '{personList{items{firstName name}}}',
-        getUrl: '/graphql?query={personList{items{firstName name}}}'
-      },
-      {
-        name: 'GET: All Companies',
-        description: 'Fetch companies with CEO',
-        query: '{companyList{items{name ceo{firstName name}}}}',
-        getUrl: '/graphql?query={companyList{items{name ceo{firstName name}}}}'
-      },
-      {
-        name: 'GET: All Adventures',
-        description: 'Fetch all adventures',
-        query: '{adventureList{items{title adventureType price}}}',
-        getUrl: '/graphql?query={adventureList{items{title adventureType price}}}'
-      },
-      {
-        name: 'GET: Schema Types',
-        description: 'Introspect schema types',
-        query: '{__schema{types{name}}}',
-        getUrl: '/graphql?query={__schema{types{name}}}'
+    function toggleCategory(categoryIndex) {
+      const header = document.getElementById(\`category-header-\${categoryIndex}\`);
+      const queries = document.getElementById(\`category-queries-\${categoryIndex}\`);
+      
+      const isExpanded = header.classList.contains('expanded');
+      
+      if (isExpanded) {
+        header.classList.remove('expanded');
+        queries.classList.remove('expanded');
+      } else {
+        header.classList.add('expanded');
+        queries.classList.add('expanded');
       }
-    ];
+    }
+    
+    function expandCategory(categoryIndex) {
+      const header = document.getElementById(\`category-header-\${categoryIndex}\`);
+      const queries = document.getElementById(\`category-queries-\${categoryIndex}\`);
+      
+      if (!header.classList.contains('expanded')) {
+        header.classList.add('expanded');
+        queries.classList.add('expanded');
+      }
+    }
     
     function renderQueryList() {
-      const queryList = document.getElementById('queryList');
-      queryList.innerHTML = sampleQueries.map((q, idx) => \`
-        <li class="query-item" onclick="loadQuery(\${idx}, 'sample', event)">
-          <div class="query-name">\${q.name}</div>
-          <div class="query-desc">\${q.description}</div>
-        </li>
-      \`).join('');
+      const container = document.getElementById('queryCategories');
       
-      const persistedList = document.getElementById('persistedQueryList');
-      persistedList.innerHTML = persistedQueries.map((q, idx) => \`
-        <li class="query-item" onclick="loadQuery(\${idx}, 'persisted', event)">
-          <div class="query-name">\${q.name}</div>
-          <div class="query-desc">\${q.description}</div>
-        </li>
-      \`).join('');
-      
-      const getList = document.getElementById('getQueryList');
-      getList.innerHTML = getQueryExamples.map((q, idx) => \`
-        <li class="query-item" onclick="loadQuery(\${idx}, 'get', event)">
-          <div class="query-name">\${q.name}</div>
-          <div class="query-desc">\${q.description}</div>
-        </li>
+      container.innerHTML = queryCategories.map((category, catIdx) => \`
+        <div class="query-category">
+          <div class="category-header" id="category-header-\${catIdx}" onclick="toggleCategory(\${catIdx})">
+            <span>\${category.icon} \${category.name} <span class="category-count">\${category.queries.length}</span></span>
+            <span class="category-toggle">▼</span>
+          </div>
+          <div class="category-queries" id="category-queries-\${catIdx}">
+            <ul class="query-list">
+              \${category.queries.map((q, qIdx) => \`
+                <li class="query-item" data-category="\${catIdx}" data-query="\${qIdx}" onclick="loadQuery(\${catIdx}, \${qIdx}, event)">
+                  <div class="query-name">\${q.name}</div>
+                  <div class="query-desc">\${q.description}</div>
+                </li>
+              \`).join('')}
+            </ul>
+          </div>
+        </div>
       \`).join('');
     }
     
-    function loadQuery(index, queryType, evt) {
-      let query;
-      let queries;
-      
-      if (queryType === 'sample') {
-        queries = sampleQueries;
-      } else if (queryType === 'persisted') {
-        queries = persistedQueries;
-      } else if (queryType === 'get') {
-        queries = getQueryExamples;
-      }
-      
-      query = queries[index];
+    function loadQuery(categoryIndex, queryIndex, evt) {
+      const category = queryCategories[categoryIndex];
+      const query = category.queries[queryIndex];
       document.getElementById('queryEditor').value = query.query;
+      
+      // Update URL with query parameters
+      const url = new URL(window.location);
+      url.searchParams.set('category', categoryIndex);
+      url.searchParams.set('query', queryIndex);
+      window.history.pushState({}, '', url);
+      
+      // Expand the category if not already expanded
+      expandCategory(categoryIndex);
       
       // Show GET URL if available
       const responseDiv = document.getElementById('response');
@@ -1255,18 +1900,33 @@ export const graphqlPlaygroundHtml = `
       
       try {
         const serverUrl = getServerUrl();
-        
-        // Check if query name contains "Batch:" to add batch index
         let requestBody;
-        const queryName = document.querySelector('.query-item.active .query-name')?.textContent || '';
         
-        if (queryName.includes('Batch:')) {
-          // Extract batch index from query name (e.g., "Batch: User (index 0)")
-          const indexMatch = queryName.match(/index\s+(\d+)/);
-          const batchIndex = indexMatch ? parseInt(indexMatch[1]) : 0;
-          requestBody = JSON.stringify({ query, batchIndex });
+        // Check if the query is a batch request (JSON array)
+        const trimmedQuery = query.trim();
+        if (trimmedQuery.startsWith('[') && trimmedQuery.endsWith(']')) {
+          // It's a batch request - parse and re-stringify to ensure valid JSON
+          try {
+            const batchArray = JSON.parse(trimmedQuery);
+            requestBody = JSON.stringify(batchArray);
+          } catch (parseError) {
+            responseDiv.className = 'response error';
+            responseDiv.textContent = 'Invalid batch JSON format: ' + parseError.message;
+            headersContainer.innerHTML = '<div class="no-headers">Error</div>';
+            return;
+          }
         } else {
-          requestBody = JSON.stringify({ query });
+          // Regular GraphQL query
+          const queryName = document.querySelector('.query-item.active .query-name')?.textContent || '';
+          
+          if (queryName.includes('Batch:')) {
+            // Extract batch index from query name (e.g., "Batch: User (index 0)")
+            const indexMatch = queryName.match(/index\s+(\d+)/);
+            const batchIndex = indexMatch ? parseInt(indexMatch[1]) : 0;
+            requestBody = JSON.stringify({ query, batchIndex });
+          } else {
+            requestBody = JSON.stringify({ query });
+          }
         }
         
         const headers = getHeaders();
@@ -1378,7 +2038,29 @@ export const graphqlPlaygroundHtml = `
     
     // Initialize
     renderQueryList();
-    loadQuery(0, 'sample');
+    
+    // Check URL parameters for initial query load
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    const queryParam = urlParams.get('query');
+    
+    if (categoryParam !== null && queryParam !== null) {
+      const catIdx = parseInt(categoryParam);
+      const qIdx = parseInt(queryParam);
+      
+      // Validate indices
+      if (catIdx >= 0 && catIdx < queryCategories.length && 
+          qIdx >= 0 && qIdx < queryCategories[catIdx].queries.length) {
+        loadQuery(catIdx, qIdx);
+      } else {
+        // Default to first query if invalid params
+        loadQuery(0, 0);
+      }
+    } else {
+      // No params, load first query
+      loadQuery(0, 0);
+    }
+    
     loadServerUrl();
     loadHeaders();
   </script>
