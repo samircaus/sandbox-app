@@ -251,6 +251,36 @@ export const restPlaygroundHtml = `
     .btn-add:hover {
       background: #047857;
     }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .copy-btn {
+      background: #6b7280;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .copy-btn:hover {
+      background: #4b5563;
+    }
+    .copy-btn.copied {
+      background: #059669;
+    }
+    .copy-btn svg {
+      width: 14px;
+      height: 14px;
+    }
   </style>
 </head>
 <body>
@@ -291,7 +321,15 @@ export const restPlaygroundHtml = `
             </div>
           </div>
           
-          <h2>Request Configuration</h2>
+          <div class="section-header">
+            <h2>Request Configuration</h2>
+            <button class="copy-btn" onclick="copyRequest()" id="copyRequestBtn">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Copy URL
+            </button>
+          </div>
           <div>
             <div class="param-label">HTTP Method</div>
             <input type="text" id="methodInput" readonly value="GET" style="background: #f0f0f0;" />
@@ -320,7 +358,15 @@ export const restPlaygroundHtml = `
         </div>
         
         <div class="card">
-          <h2>Response</h2>
+          <div class="section-header">
+            <h2>Response</h2>
+            <button class="copy-btn" onclick="copyResponse()" id="copyResponseBtn">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Copy Response
+            </button>
+          </div>
           <div style="margin-bottom: 10px;">
             <span style="font-size: 13px; color: #666;">Status: <strong id="statusCode">-</strong></span>
             <span style="margin-left: 20px; font-size: 13px; color: #666;">Time: <strong id="responseTime">-</strong></span>
@@ -607,6 +653,68 @@ export const restPlaygroundHtml = `
       document.getElementById('responseTime').textContent = '-';
       document.querySelectorAll('.endpoint-item').forEach(item => {
         item.classList.remove('active');
+      });
+    }
+    
+    function copyRequest() {
+      const serverUrl = getServerUrl();
+      const path = document.getElementById('pathInput').value;
+      const fullUrl = serverUrl + path;
+      const btn = document.getElementById('copyRequestBtn');
+      
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        // Show success feedback
+        btn.classList.add('copied');
+        btn.innerHTML = \`
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Copied!
+        \`;
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = \`
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            Copy URL
+          \`;
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
+      });
+    }
+    
+    function copyResponse() {
+      const response = document.getElementById('response').textContent;
+      const btn = document.getElementById('copyResponseBtn');
+      
+      navigator.clipboard.writeText(response).then(() => {
+        // Show success feedback
+        btn.classList.add('copied');
+        btn.innerHTML = \`
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Copied!
+        \`;
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = \`
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            Copy Response
+          \`;
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
       });
     }
     

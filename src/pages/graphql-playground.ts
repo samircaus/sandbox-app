@@ -232,6 +232,36 @@ export const graphqlPlaygroundHtml = `
     .btn-add:hover {
       background: #047857;
     }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .copy-btn {
+      background: #6b7280;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .copy-btn:hover {
+      background: #4b5563;
+    }
+    .copy-btn.copied {
+      background: #059669;
+    }
+    .copy-btn svg {
+      width: 14px;
+      height: 14px;
+    }
   </style>
 </head>
 <body>
@@ -271,7 +301,15 @@ export const graphqlPlaygroundHtml = `
             </div>
           </div>
           
-          <h2>Query Editor</h2>
+          <div class="section-header">
+            <h2>Query Editor</h2>
+            <button class="copy-btn" onclick="copyQuery()" id="copyQueryBtn">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Copy Query
+            </button>
+          </div>
           <textarea id="queryEditor" placeholder="Enter your GraphQL query here..."></textarea>
           
           <div class="headers-section">
@@ -288,7 +326,15 @@ export const graphqlPlaygroundHtml = `
         </div>
         
         <div class="card">
-          <h2>Response</h2>
+          <div class="section-header">
+            <h2>Response</h2>
+            <button class="copy-btn" onclick="copyResponse()" id="copyResponseBtn">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              Copy Response
+            </button>
+          </div>
           <div id="response" class="response">Response will appear here...</div>
         </div>
       </div>
@@ -1171,6 +1217,66 @@ export const graphqlPlaygroundHtml = `
         .replace(/\\}/g, '\\n}')
         .replace(/\\n\\s*\\n/g, '\\n');
       document.getElementById('queryEditor').value = formatted;
+    }
+    
+    function copyQuery() {
+      const query = document.getElementById('queryEditor').value;
+      const btn = document.getElementById('copyQueryBtn');
+      
+      navigator.clipboard.writeText(query).then(() => {
+        // Show success feedback
+        btn.classList.add('copied');
+        btn.innerHTML = \`
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Copied!
+        \`;
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = \`
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            Copy Query
+          \`;
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
+      });
+    }
+    
+    function copyResponse() {
+      const response = document.getElementById('response').textContent;
+      const btn = document.getElementById('copyResponseBtn');
+      
+      navigator.clipboard.writeText(response).then(() => {
+        // Show success feedback
+        btn.classList.add('copied');
+        btn.innerHTML = \`
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Copied!
+        \`;
+        
+        // Reset after 2 seconds
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = \`
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            Copy Response
+          \`;
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy to clipboard');
+      });
     }
     
     // Initialize
