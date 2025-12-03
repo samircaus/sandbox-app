@@ -1351,103 +1351,105 @@ export const graphqlPlaygroundHtml = `
         icon: '📦',
         queries: [
           {
-            name: 'Multiple Users by ID',
-            description: 'Batch request for 3 different users',
-            query: \`[
-  {
-    "query": "{ user(id: \\\\"1\\\\") { id name email role } }"
-  },
-  {
-    "query": "{ user(id: \\\\"2\\\\") { id name email role } }"
-  },
-  {
-    "query": "{ user(id: \\\\"3\\\\") { id name email role } }"
+            name: 'User Query with Batch Index 0',
+            description: 'Returns _0_user in response',
+            query: \`{
+  user(id: "1") {
+    id
+    name
+    email
+    role
   }
-]\`
+}
+
+# Add to request body:
+# { "query": "...", "batchIndex": 0 }
+# Response: { "data": { "_0_user": {...} } }\`
           },
           {
-            name: 'Mixed Entity Types',
-            description: 'Batch different queries together',
-            query: \`[
-  {
-    "query": "{ hello }"
-  },
-  {
-    "query": "{ users { id name email role } }"
-  },
-  {
-    "query": "{ products(category: \\\\"electronics\\\\") { id name price inStock } }"
-  },
-  {
-    "query": "{ cityList(limit: 5) { items { name country population } } }"
+            name: 'City List with Batch Index 0',
+            description: 'Returns _0_cityList in response',
+            query: \`{
+  cityList(limit: 5) {
+    items {
+      name
+      country
+      population
+    }
   }
-]\`
+}
+
+# Add to request body:
+# { "query": "...", "batchIndex": 0 }
+# Response: { "data": { "_0_cityList": {...} } }\`
           },
           {
-            name: 'Multiple Filters',
-            description: 'Batch queries with different filters',
-            query: \`[
-  {
-    "query": "query LargeCities { cityList(filter: { population: { _expressions: [{ value: \\\\"1000000\\\\", _operator: GREATER }] } }) { items { name population country } } }"
-  },
-  {
-    "query": "query SmallCities { cityList(filter: { population: { _expressions: [{ value: \\\\"500000\\\\", _operator: LOWER }] } }) { items { name population country } } }"
-  },
-  {
-    "query": "query GermanCities { cityList(filter: { country: { _expressions: [{ value: \\\\"Germany\\\\", _operator: EQUALS }] } }) { items { name population country } } }"
+            name: 'Products with Batch Index 1',
+            description: 'Returns _1_products in response',
+            query: \`{
+  products(category: "electronics") {
+    id
+    name
+    price
+    inStock
   }
-]\`
+}
+
+# Add to request body:
+# { "query": "...", "batchIndex": 1 }
+# Response: { "data": { "_1_products": [...] } }\`
           },
           {
-            name: 'Product Queries',
-            description: 'Batch different product searches',
-            query: \`[
-  {
-    "query": "{ products(category: \\\\"electronics\\\\") { id name price inStock } }"
-  },
-  {
-    "query": "{ products(category: \\\\"books\\\\") { id name price inStock } }"
-  },
-  {
-    "query": "{ products(category: \\\\"clothing\\\\") { id name price inStock } }"
-  },
-  {
-    "query": "{ getProductById(id: \\\\"prod-1\\\\") { id name price category inStock } }"
+            name: 'Person List with Batch Index 2',
+            description: 'Returns _2_personList in response',
+            query: \`{
+  personList {
+    items {
+      firstName
+      name
+    }
   }
-]\`
+}
+
+# Add to request body:
+# { "query": "...", "batchIndex": 2 }
+# Response: { "data": { "_2_personList": {...} } }\`
           },
           {
-            name: 'City Comparisons',
-            description: 'Compare multiple cities in parallel',
-            query: \`[
-  {
-    "query": "{ cityByPath(_path: \\\\"/content/dam/sample-content-fragments/cities/berlin\\\\") { item { name country population categories } } }"
-  },
-  {
-    "query": "{ cityByPath(_path: \\\\"/content/dam/sample-content-fragments/cities/san-francisco\\\\") { item { name country population categories } } }"
-  },
-  {
-    "query": "{ cityByPath(_path: \\\\"/content/dam/sample-content-fragments/cities/tokyo\\\\") { item { name country population categories } } }"
+            name: 'Adventure List with Batch Index 3',
+            description: 'Returns _3_adventureList in response',
+            query: \`{
+  adventureList(limit: 10) {
+    items {
+      title
+      adventureType
+      price
+    }
   }
-]\`
+}
+
+# Add to request body:
+# { "query": "...", "batchIndex": 3 }
+# Response: { "data": { "_3_adventureList": {...} } }\`
           },
           {
-            name: 'Schema Introspection',
-            description: 'Batch introspection queries',
-            query: \`[
-  {
-    "query": "{ __schema { types { name kind } } }"
-  },
-  {
-    "query": "{ __type(name: \\\\"City\\\\") { name kind fields { name type { name kind } } } }"
-  },
-  {
-    "query": "{ __type(name: \\\\"FilterOperator\\\\") { name kind enumValues { name description } } }"
-  },
-  {
-    "query": "{ __type(name: \\\\"Query\\\\") { name fields { name description } } }"
+            name: 'Company Query with Batch Index 0',
+            description: 'Returns _0_companyList in response',
+            query: \`{
+  companyList {
+    items {
+      name
+      ceo {
+        firstName
+        name
+      }
+    }
   }
-]\`
+}
+
+# Add to request body:
+# { "query": "...", "batchIndex": 0 }
+# Response: { "data": { "_0_companyList": {...} } }\`
           }
         ]
       },
@@ -1919,11 +1921,19 @@ export const graphqlPlaygroundHtml = `
           // Regular GraphQL query
           const queryName = document.querySelector('.query-item.active .query-name')?.textContent || '';
           
-          if (queryName.includes('Batch:')) {
-            // Extract batch index from query name (e.g., "Batch: User (index 0)")
-            const indexMatch = queryName.match(/index\s+(\d+)/);
+          // Check if this is a batch query by looking for "Batch Index" in the name
+          if (queryName.includes('Batch Index')) {
+            // Extract batch index from query name (e.g., "User Query with Batch Index 0")
+            const indexMatch = queryName.match(/Batch Index (\d+)/);
             const batchIndex = indexMatch ? parseInt(indexMatch[1]) : 0;
-            requestBody = JSON.stringify({ query, batchIndex });
+            
+            // Clean the query - remove comment lines
+            const cleanedQuery = query.split('\n')
+              .filter(line => !line.trim().startsWith('#'))
+              .join('\n')
+              .trim();
+            
+            requestBody = JSON.stringify({ query: cleanedQuery, batchIndex });
           } else {
             requestBody = JSON.stringify({ query });
           }
