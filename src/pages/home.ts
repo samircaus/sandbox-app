@@ -83,7 +83,7 @@ export const homePageHtml = `
     <a href="/gql?category=1&query=0">→ All Countries (with descriptions)</a>
     <a href="/gql?category=1&query=1">→ Country by Code - US</a>
     <a href="/gql?category=1&query=2">→ Country by Code - Germany</a>
-    <a href="/gql?category=1&query=3">→ Country by Code - Japan</a>
+    <a href="/gql?category=1&query=3">→ Country by Code - Great Britain</a>
   </div>
   </div>
 </body>

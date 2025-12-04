@@ -2168,10 +2168,14 @@ export const graphqlPlaygroundHtml = `
     capital
     currency
   }
-  japan: country(code: "JP") {
+  gb: country(code: "GB") {
     name
     capital
     currency
+    languages {
+      code
+      name
+    }
   }
 }\`
           },

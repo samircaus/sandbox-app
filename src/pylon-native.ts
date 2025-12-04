@@ -263,12 +263,12 @@ export const countries: Country[] = [
     emoji: '🇫🇷'
   },
   {
-    code: 'JP',
-    name: 'Japan',
-    description: 'Japan is an island nation in East Asia known for its blend of ancient traditions and cutting-edge technology.',
-    capital: 'Tokyo',
-    currency: 'JPY',
-    emoji: '🇯🇵'
+    code: 'GB',
+    name: 'Great Britain',
+    description: 'Great Britain is a sovereign island nation comprising England, Scotland, and Wales, known for its rich history, cultural influence, and constitutional monarchy.',
+    capital: 'London',
+    currency: 'GBP',
+    emoji: '🇬🇧'
   },
   {
     code: 'CA',

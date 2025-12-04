@@ -372,16 +372,21 @@ export const graphqlSimplePlaygroundHtml = `
 }\`
           },
           {
-            name: 'Country - Japan',
-            description: 'Get Japan info',
+            name: 'Country - Great Britain',
+            description: 'Get Great Britain info with languages',
             query: \`query {
-  country(code: "JP") {
+  country(code: "GB") {
     code
     name
     description
     capital
     currency
     emoji
+    languages {
+      code
+      name
+      native
+    }
   }
 }\`
           }
