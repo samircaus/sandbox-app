@@ -8,17 +8,11 @@ export const navigationHeader = `
       </a>
     </div>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <a href="/" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; transition: background 0.2s; font-weight: 500; background: rgba(255,255,255,0.1);" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-        🏠 Home
-      </a>
       <a href="/rest-playground" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; transition: background 0.2s; font-weight: 500; background: rgba(255,255,255,0.1);" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
         📡 REST Playground
       </a>
-      <a href="/graphql-playground" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; transition: background 0.2s; font-weight: 500; background: rgba(255,255,255,0.1);" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+      <a href="/gql" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; transition: background 0.2s; font-weight: 500; background: rgba(255,255,255,0.1);" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
         ⚡ GraphQL Playground
-      </a>
-      <a href="/openapi.yaml" target="_blank" style="color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; transition: background 0.2s; font-weight: 500; background: rgba(255,255,255,0.1);" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-        📄 OpenAPI Schema
       </a>
     </div>
   </div>

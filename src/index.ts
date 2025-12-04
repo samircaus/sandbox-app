@@ -4,6 +4,7 @@ import { productTemplates, users, products, categories, cities, persons, compani
 import { homePageHtml } from './pages/home'
 import { restPlaygroundHtml } from './pages/rest-playground'
 import { graphqlPlaygroundHtml } from './pages/graphql-playground'
+import { graphqlSimplePlaygroundHtml } from './pages/graphql-simple'
 import { openapiYaml } from './schemas/openapi'
 
 const app = new Hono()
@@ -23,7 +24,7 @@ app.use('/*', cors({
     return '*'
   },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization', 'X-GraphQL-Batch-Mode'],
+  allowHeaders: ['Content-Type', 'Authorization'],
   exposeHeaders: ['Content-Length'],
   maxAge: 600,
   credentials: true,
@@ -63,43 +64,88 @@ app.get('/products', (c) => {
   return c.json(filteredProducts)
 })
 
-// REST endpoint: Get product by ID with randomization
+// REST endpoint: Get product by ID - Main content only (no price, no rating)
 app.get('/product/:id', (c) => {
   const id = c.req.param('id')
   
   // First check if it's a known product ID
   const knownProduct = products.find(p => p.id === id)
   if (knownProduct) {
-    return c.json(knownProduct)
+    // Return only main content (exclude price, inStock, quantity, rating, reviews)
+    const { price, inStock, quantity, rating, reviews, ...mainContent } = knownProduct
+    return c.json(mainContent)
   }
   
   // Otherwise, randomly select a product template for unknown IDs
   const template = productTemplates[Math.floor(Math.random() * productTemplates.length)]
   
-  // Randomize various properties
-  const randomPrice = (Math.random() * 200 + 10).toFixed(2)
-  const randomRating = (Math.random() * 2 + 3).toFixed(1) // 3.0 to 5.0
-  const randomReviews = Math.floor(Math.random() * 500 + 10)
-  const randomQuantity = Math.floor(Math.random() * 200 + 1)
-  const inStock = randomQuantity > 0
-  
   const product = {
     id: id,
     name: template.name,
     description: template.description,
-    price: parseFloat(randomPrice),
     currency: 'USD',
     category: template.category,
-    inStock: inStock,
-    quantity: randomQuantity,
     imageUrl: `https://example.com/products/${id}.jpg`,
-    rating: parseFloat(randomRating),
-    reviews: randomReviews,
     specifications: template.specifications,
     tags: template.tags
   }
   
   return c.json(product)
+})
+
+// REST endpoint: Get product price and availability by ID
+app.get('/product/:id/price', (c) => {
+  const id = c.req.param('id')
+  
+  // First check if it's a known product ID
+  const knownProduct = products.find(p => p.id === id)
+  if (knownProduct) {
+    return c.json({
+      id: knownProduct.id,
+      price: knownProduct.price,
+      currency: knownProduct.currency,
+      inStock: knownProduct.inStock,
+      quantity: knownProduct.quantity
+    })
+  }
+  
+  // Otherwise, generate random price data
+  const randomPrice = (Math.random() * 200 + 10).toFixed(2)
+  const randomQuantity = Math.floor(Math.random() * 200 + 1)
+  const inStock = randomQuantity > 0
+  
+  return c.json({
+    id: id,
+    price: parseFloat(randomPrice),
+    currency: 'USD',
+    inStock: inStock,
+    quantity: randomQuantity
+  })
+})
+
+// REST endpoint: Get product rating by ID
+app.get('/product/:id/rating', (c) => {
+  const id = c.req.param('id')
+  
+  // First check if it's a known product ID
+  const knownProduct = products.find(p => p.id === id)
+  if (knownProduct) {
+    return c.json({
+      id: knownProduct.id,
+      rating: knownProduct.rating,
+      reviews: knownProduct.reviews
+    })
+  }
+  
+  // Otherwise, generate random rating data
+  const randomRating = (Math.random() * 2 + 3).toFixed(1) // 3.0 to 5.0
+  const randomReviews = Math.floor(Math.random() * 500 + 10)
+  
+  return c.json({
+    id: id,
+    rating: parseFloat(randomRating),
+    reviews: randomReviews
+  })
 })
 
 // OpenAPI YAML Schema endpoint
@@ -167,7 +213,12 @@ app.get('/rest-playground', (c) => {
   return c.html(restPlaygroundHtml)
 })
 
-// GraphQL Playground endpoint
+// GraphQL Simple Playground endpoint (new simplified version)
+app.get('/gql', (c) => {
+  return c.html(graphqlSimplePlaygroundHtml)
+})
+
+// GraphQL Playground endpoint (old full-featured version - hidden from navigation)
 app.get('/graphql-playground', (c) => {
   return c.html(graphqlPlaygroundHtml)
 })

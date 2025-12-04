@@ -1,7 +1,13 @@
 export const openapiYaml = `openapi: 3.0.3
 info:
   title: Simple Sandbox API
-  description: A sample product API with REST and GraphQL endpoints
+  description: |
+    A sample product API with REST and GraphQL endpoints.
+    
+    Product information is split across microservices-style endpoints:
+    - /product/{id} - Main product information (content, specifications, tags)
+    - /product/{id}/price - Pricing and availability (price, stock, quantity)
+    - /product/{id}/rating - Customer ratings and reviews
   version: 1.0.0
   contact:
     name: API Support
@@ -184,8 +190,8 @@ paths:
                         - smartwatch
   /product/{id}:
     get:
-      summary: Get product by ID
-      description: Returns a product with randomized properties based on templates
+      summary: Get product main information by ID
+      description: Returns product main content without pricing and rating information
       operationId: getProductById
       parameters:
         - name: id
@@ -207,7 +213,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/ProductMainInfo'
               examples:
                 wireless_headphones:
                   summary: Wireless Headphones
@@ -217,14 +223,8 @@ paths:
                     description: "Premium noise-canceling wireless headphones with 30-hour battery life."
                     categoryId: "cat-electronics"
                     category: "Electronics"
-                    text: "This is {{description}} from category. Perfect for {{name}} enthusiasts!"
-                    price: 99.99
                     currency: "USD"
-                    inStock: true
-                    quantity: 42
                     imageUrl: "https://example.com/products/1.jpg"
-                    rating: 4.5
-                    reviews: 123
                     specifications:
                       weight: "250g"
                       dimensions: "18 x 16 x 8 cm"
@@ -234,6 +234,68 @@ paths:
                       - featured
                       - wireless
                       - audio
+  /product/{id}/price:
+    get:
+      summary: Get product pricing and availability
+      description: Returns price, stock status, and quantity information for a product
+      operationId: getProductPrice
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+          examples:
+            numeric:
+              value: "1"
+              summary: Numeric ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPrice'
+              examples:
+                product_price:
+                  summary: Product Price Information
+                  value:
+                    id: "1"
+                    price: 99.99
+                    currency: "USD"
+                    inStock: true
+                    quantity: 42
+  /product/{id}/rating:
+    get:
+      summary: Get product rating and reviews
+      description: Returns rating score and number of reviews for a product
+      operationId: getProductRating
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+          examples:
+            numeric:
+              value: "1"
+              summary: Numeric ID
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductRating'
+              examples:
+                product_rating:
+                  summary: Product Rating Information
+                  value:
+                    id: "1"
+                    rating: 4.5
+                    reviews: 123
 components:
   schemas:
     Category:
@@ -376,5 +438,127 @@ components:
           items:
             type: string
           example: ["featured", "wireless", "audio"]
+    ProductMainInfo:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - currency
+        - category
+        - imageUrl
+        - tags
+      properties:
+        id:
+          type: string
+          description: Unique product identifier
+          example: "1"
+        name:
+          type: string
+          description: Product name
+          example: "Wireless Headphones"
+        description:
+          type: string
+          description: Product description
+          example: "Premium noise-canceling wireless headphones with 30-hour battery life."
+        categoryId:
+          type: string
+          description: Category ID for federation/joins
+          example: "cat-electronics"
+        category:
+          type: string
+          description: Product category name
+          enum:
+            - Electronics
+            - Wearables
+            - Accessories
+          example: "Electronics"
+        currency:
+          type: string
+          description: Currency code
+          example: "USD"
+        imageUrl:
+          type: string
+          format: uri
+          description: Product image URL
+          example: "https://example.com/products/1.jpg"
+        specifications:
+          type: object
+          description: Product specifications
+          properties:
+            weight:
+              type: string
+              example: "250g"
+            dimensions:
+              type: string
+              example: "18 x 16 x 8 cm"
+            color:
+              type: string
+              example: "Black"
+            brand:
+              type: string
+              example: "AudioTech"
+        tags:
+          type: array
+          description: Product tags
+          items:
+            type: string
+          example: ["featured", "wireless", "audio"]
+    ProductPrice:
+      type: object
+      required:
+        - id
+        - price
+        - currency
+        - inStock
+        - quantity
+      properties:
+        id:
+          type: string
+          description: Product identifier
+          example: "1"
+        price:
+          type: number
+          format: float
+          description: Product price
+          example: 99.99
+        currency:
+          type: string
+          description: Currency code
+          example: "USD"
+        inStock:
+          type: boolean
+          description: Whether product is in stock
+          example: true
+        quantity:
+          type: integer
+          format: int32
+          description: Available quantity
+          minimum: 0
+          example: 42
+    ProductRating:
+      type: object
+      required:
+        - id
+        - rating
+        - reviews
+      properties:
+        id:
+          type: string
+          description: Product identifier
+          example: "1"
+        rating:
+          type: number
+          format: float
+          description: Product rating (3.0-5.0)
+          minimum: 3.0
+          maximum: 5.0
+          example: 4.5
+        reviews:
+          type: integer
+          format: int32
+          description: Number of reviews
+          minimum: 0
+          example: 123
 `
 

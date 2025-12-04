@@ -45,44 +45,44 @@ export const homePageHtml = `
   ${navigationHeader}
   <div class="content-wrapper">
     <h1>Simple Sandbox App</h1>
-    <p>Welcome! This is a sample product API.</p>
-    <div class="product-links">
-    <p>Try these sample REST endpoints:</p>
-    <a href="/product/1">→ Product 1</a>
-    <a href="/product/42">→ Product 42</a>
-    <a href="/product/xyz">→ Product XYZ</a>
-  </div>
+    <p>Welcome! This is a sample product API with REST and GraphQL endpoints.</p>
+    
   <div class="product-links">
-    <p>API Playgrounds:</p>
+    <p><strong>🎮 API Playgrounds:</strong></p>
     <a href="/rest-playground">→ REST Playground (OpenAPI)</a>
-    <a href="/graphql-playground">→ GraphQL Playground</a>
+    <a href="/gql">→ GraphQL Playground</a>
   </div>
+  
   <div class="product-links">
-    <p>API Documentation:</p>
-    <a href="/openapi.yaml">→ OpenAPI Schema (YAML)</a>
+    <p><strong>📋 API Documentation:</strong></p>
+    <a href="/openapi.yaml" target="_blank">→ OpenAPI Schema (YAML)</a>
     <a href="/graphql/schema.json" target="_blank">→ GraphQL Schema (JSON)</a>
     <a href="/graphql/endpoint.json" target="_blank">→ GraphQL Endpoint Info (JSON)</a>
   </div>
+  
   <div class="product-links">
-    <p>GraphQL Introspection Examples:</p>
-    <a href="/graphql?query={__schema{types{name description}}}" target="_blank">→ Schema Types</a>
-    <a href="/graphql?query={__schema{queryType{name}}}" target="_blank">→ Query Root Type</a>
+    <p><strong>🛍️ REST Product Examples:</strong></p>
+    <a href="/rest-playground?endpoint=0">→ Product Main Info</a>
+    <a href="/rest-playground?endpoint=1">→ Product Price & Availability</a>
+    <a href="/rest-playground?endpoint=2">→ Product Rating</a>
+    <a href="/rest-playground?endpoint=3">→ All Products</a>
+    <a href="/rest-playground?endpoint=4">→ Products by Category (Electronics)</a>
   </div>
+  
   <div class="product-links">
-    <p>GraphQL Content Fragment Queries:</p>
-    <a href="/graphql?query={cityList{items{name country population}}}" target="_blank">→ All Cities</a>
-    <a href="/graphql?query={personList{items{firstName name}}}" target="_blank">→ All Persons</a>
-    <a href="/graphql?query={companyList{items{name ceo{firstName name}}}}" target="_blank">→ All Companies</a>
-    <a href="/graphql?query={adventureList{items{title adventureType price}}}" target="_blank">→ All Adventures</a>
+    <p><strong>⚡ GraphQL Product Examples:</strong></p>
+    <a href="/gql?category=0&query=0">→ All Products Query</a>
+    <a href="/gql?category=0&query=1">→ Product by ID Query</a>
+    <a href="/gql?category=0&query=2">→ Products by Category (Electronics)</a>
+    <a href="/gql?category=0&query=3">→ Products with Specifications</a>
   </div>
+  
   <div class="product-links">
-    <p>GraphQL Legacy Queries (Users & Products):</p>
-    <a href="/graphql?query={hello}" target="_blank">→ Hello Query</a>
-    <a href="/graphql?query={users{id name email role}}" target="_blank">→ All Users</a>
-    <a href="/graphql?query={user(id:\"1\"){id name email role}}" target="_blank">→ User by ID</a>
-    <a href="/graphql?query={products{id name price category inStock}}" target="_blank">→ All Products</a>
-    <a href="/graphql?query={products(category:\"Electronics\"){id name price inStock}}" target="_blank">→ Electronics Products</a>
-    <a href="/graphql?query={getProductById(id:\"1\"){id name price category inStock}}" target="_blank">→ Product by ID</a>
+    <p><strong>🌍 GraphQL Countries Examples:</strong></p>
+    <a href="/gql?category=1&query=0">→ All Countries Query</a>
+    <a href="/gql?category=1&query=1">→ Country by Code (US)</a>
+    <a href="/gql?category=1&query=2">→ Countries with Languages</a>
+    <a href="/gql?category=1&query=4">→ Continent with Countries (Europe)</a>
   </div>
   </div>
 </body>

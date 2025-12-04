@@ -19,7 +19,7 @@ export const restPlaygroundHtml = `
       padding: 0;
     }
     .container {
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
     }
@@ -33,7 +33,7 @@ export const restPlaygroundHtml = `
     }
     .layout {
       display: grid;
-      grid-template-columns: 300px 1fr;
+      grid-template-columns: 280px 1fr;
       gap: 20px;
       margin-bottom: 20px;
     }
@@ -42,6 +42,7 @@ export const restPlaygroundHtml = `
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      height: fit-content;
     }
     .main-content {
       display: flex;
@@ -86,10 +87,10 @@ export const restPlaygroundHtml = `
     .endpoint-name {
       font-weight: 600;
       margin-bottom: 4px;
-      font-family: monospace;
+      font-size: 13px;
     }
     .endpoint-desc {
-      font-size: 12px;
+      font-size: 11px;
       color: #666;
     }
     .endpoint-item.active .endpoint-desc {
@@ -139,7 +140,7 @@ export const restPlaygroundHtml = `
       border: 1px solid #ddd;
       border-radius: 4px;
       padding: 15px;
-      min-height: 300px;
+      min-height: 200px;
       font-family: 'Monaco', 'Menlo', monospace;
       font-size: 13px;
       white-space: pre-wrap;
@@ -166,14 +167,6 @@ export const restPlaygroundHtml = `
       font-size: 14px;
       line-height: 1.6;
     }
-    .info-section a {
-      color: #0066cc;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .info-section a:hover {
-      text-decoration: underline;
-    }
     .server-url-input {
       width: 100%;
       padding: 10px 12px;
@@ -182,74 +175,11 @@ export const restPlaygroundHtml = `
       font-family: monospace;
       font-size: 14px;
       transition: border-color 0.2s;
+      margin-top: 10px;
     }
     .server-url-input:focus {
       outline: none;
       border-color: #0066cc;
-    }
-    .server-preset-select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #ddd;
-      border-radius: 4px;
-      font-family: monospace;
-      font-size: 14px;
-      background: white;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-    .server-preset-select:focus {
-      outline: none;
-      border-color: #0066cc;
-    }
-    .param-section {
-      margin-top: 15px;
-    }
-    .param-label {
-      font-weight: 600;
-      font-size: 13px;
-      margin-bottom: 5px;
-      color: #333;
-    }
-    .headers-section {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f8f9fa;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
-    .header-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 10px;
-      margin-bottom: 10px;
-      align-items: center;
-    }
-    .header-input {
-      padding: 8px 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-family: monospace;
-      font-size: 13px;
-    }
-    .header-input:focus {
-      outline: none;
-      border-color: #0066cc;
-    }
-    .btn-small {
-      padding: 8px 12px;
-      font-size: 12px;
-      background: #dc2626;
-    }
-    .btn-small:hover {
-      background: #b91c1c;
-    }
-    .btn-add {
-      background: #059669;
-      margin-top: 5px;
-    }
-    .btn-add:hover {
-      background: #047857;
     }
     .section-header {
       display: flex;
@@ -267,9 +197,6 @@ export const restPlaygroundHtml = `
       font-size: 12px;
       font-weight: 600;
       transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
     .copy-btn:hover {
       background: #4b5563;
@@ -277,89 +204,46 @@ export const restPlaygroundHtml = `
     .copy-btn.copied {
       background: #059669;
     }
-    .copy-btn svg {
-      width: 14px;
-      height: 14px;
+    .category-header {
+      font-weight: 700;
+      color: #333;
+      margin: 15px 0 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #0066cc;
+      font-size: 14px;
     }
-    .headers-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+    .param-section {
+      margin-top: 15px;
+    }
+    .param-label {
+      font-weight: 600;
       font-size: 13px;
-      background: white;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .headers-table th {
-      background: #f8f9fa;
-      padding: 10px;
-      text-align: left;
-      font-weight: 600;
+      margin-bottom: 5px;
       color: #333;
-      border-bottom: 2px solid #dee2e6;
     }
-    .headers-table td {
-      padding: 8px 10px;
-      border-bottom: 1px solid #e9ecef;
-      font-family: 'Monaco', 'Menlo', monospace;
-      font-size: 12px;
-    }
-    .headers-table tr:last-child td {
-      border-bottom: none;
-    }
-    .headers-table tr:hover {
-      background: #f8f9fa;
-    }
-    .header-key {
-      color: #0066cc;
-      font-weight: 600;
-    }
-    .header-value {
-      color: #333;
-      word-break: break-all;
-    }
-    .headers-container {
-      background: #f8f9fa;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      padding: 10px;
-      margin-bottom: 15px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    .no-headers {
-      color: #999;
-      font-style: italic;
-      text-align: center;
-      padding: 20px;
+    .status-info {
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: #666;
     }
   </style>
 </head>
 <body>
   ${navigationHeader}
   <div class="container">
-    <h1>REST API Playground</h1>
-    <p class="subtitle">Test your OpenAPI-compliant REST endpoints</p>
     
     <div class="layout">
       <div class="sidebar">
-        <h2>Available Endpoints</h2>
-        <ul class="endpoint-list" id="endpointList"></ul>
-        
-        <h2 style="margin-top: 30px;">Documentation</h2>
-        <div style="padding: 10px; background: #f8f9fa; border-radius: 4px; font-size: 14px;">
-          <p style="margin-bottom: 10px;">This API follows the OpenAPI 3.0 specification.</p>
-          <a href="/openapi.yaml" target="_blank" style="color: #0066cc; text-decoration: none; font-weight: 600;">📄 View OpenAPI Schema (YAML)</a>
-        </div>
+        <h2 style="margin-bottom: 20px;">Endpoints</h2>
+        <div id="endpointCategories"></div>
       </div>
       
       <div class="main-content">
         <div class="card">
           <div class="info-section">
-            <strong>🔌 REST API Endpoint (OpenAPI Compliant)</strong>
-            <p style="margin-top: 8px; margin-bottom: 8px;">Full specification: <a href="/openapi.yaml" target="_blank">openapi.yaml</a></p>
+            <strong>REST API Endpoint:</strong>
             <div style="margin-top: 10px;">
-              <select id="serverPresets" class="server-preset-select" onchange="loadPresetUrl()">
+              <select id="serverPresets" class="server-url-input" onchange="loadPresetUrl()" style="cursor: pointer;">
                 <option value="">Select a server...</option>
                 <option value="">(relative): Current server</option>
                 <option value="http://localhost:9000">localhost:9000</option>
@@ -369,67 +253,37 @@ export const restPlaygroundHtml = `
             </div>
             <div style="margin-top: 10px;">
               <input type="text" id="serverUrl" class="server-url-input" placeholder="Enter custom server URL" />
-              <button onclick="saveServerUrl()" style="margin-left: 10px; padding: 8px 16px;">Update URL</button>
             </div>
           </div>
           
           <div class="section-header">
-            <h2>Request Configuration</h2>
-            <button class="copy-btn" onclick="copyRequest()" id="copyRequestBtn">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-              </svg>
-              Copy URL
-            </button>
-          </div>
-          <div>
-            <div class="param-label">HTTP Method</div>
-            <input type="text" id="methodInput" readonly value="GET" style="background: #f0f0f0;" />
-            
-            <div class="param-section">
-              <div class="param-label">Endpoint Path</div>
-              <input type="text" id="pathInput" placeholder="/product/{id}" />
-            </div>
-            
-            <div class="param-section">
-              <div class="param-label">Path Parameters</div>
-              <div id="paramInputs"></div>
-            </div>
+            <h2>Request</h2>
+            <button class="copy-btn" onclick="copyUrl()" id="copyUrlBtn">Copy URL</button>
           </div>
           
-          <div class="headers-section">
-            <h3>Request Headers</h3>
-            <div id="headersContainer"></div>
-            <button class="btn-add" onclick="addHeaderRow()">+ Add Header</button>
+          <div class="param-label">Endpoint URL</div>
+          <input type="text" id="urlInput" style="font-weight: 600; color: #0066cc;" placeholder="Enter or select an endpoint" />
+          
+          <div class="param-section" id="paramSection" style="display: none;">
+            <div class="param-label">Parameters</div>
+            <div id="paramInputs"></div>
           </div>
           
           <div style="margin-top: 15px;" class="button-group">
             <button onclick="executeRequest()">Send Request</button>
-            <button onclick="clearRequest()">Clear</button>
+            <button onclick="clearResponse()">Clear</button>
           </div>
         </div>
         
         <div class="card">
           <div class="section-header">
             <h2>Response</h2>
-            <button class="copy-btn" onclick="copyResponse()" id="copyResponseBtn">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-              </svg>
-              Copy Response
-            </button>
+            <button class="copy-btn" onclick="copyResponse()" id="copyResponseBtn">Copy Response</button>
           </div>
-          <div style="margin-bottom: 10px;">
-            <span style="font-size: 13px; color: #666;">Status: <strong id="statusCode">-</strong></span>
-            <span style="margin-left: 20px; font-size: 13px; color: #666;">Time: <strong id="responseTime">-</strong></span>
+          <div class="status-info">
+            Status: <strong id="statusCode">-</strong>
+            <span style="margin-left: 20px;">Time: <strong id="responseTime">-</strong></span>
           </div>
-          
-          <h3 style="margin-top: 15px; margin-bottom: 5px;">Response Headers</h3>
-          <div id="responseHeaders" class="headers-container">
-            <div class="no-headers">No headers yet. Send a request to see response headers.</div>
-          </div>
-          
-          <h3 style="margin-bottom: 5px;">Response Body</h3>
           <div id="response" class="response">Response will appear here...</div>
         </div>
       </div>
@@ -437,88 +291,200 @@ export const restPlaygroundHtml = `
   </div>
   
   <script>
-    const endpoints = [
+    const endpointCategories = [
       {
-        method: 'GET',
-        path: '/product/{id}',
-        operationId: 'getProductById',
-        name: 'getProductById',
-        description: 'Get product by ID - Returns a product with randomized properties',
-        params: [
-          { name: 'id', description: 'Product ID', example: '1' }
+        name: '🛍️ Product Endpoints',
+        endpoints: [
+          {
+            name: 'Get Product by ID',
+            description: 'Main content (no price/rating)',
+            path: '/product/{id}',
+            params: [{ name: 'id', example: '1' }]
+          },
+          {
+            name: 'Product Price & Availability',
+            description: 'Price, stock, quantity',
+            path: '/product/{id}/price',
+            params: [{ name: 'id', example: '1' }]
+          },
+          {
+            name: 'Product Rating',
+            description: 'Rating and reviews count',
+            path: '/product/{id}/rating',
+            params: [{ name: 'id', example: '1' }]
+          },
+          {
+            name: 'All Products',
+            description: 'Get all products',
+            path: '/products',
+            params: []
+          },
+          {
+            name: 'Products by Category',
+            description: 'Filter by Electronics',
+            path: '/products?category=Electronics',
+            params: []
+          },
+          {
+            name: 'Products - Wearables',
+            description: 'Filter by Wearables',
+            path: '/products?category=Wearables',
+            params: []
+          },
+          {
+            name: 'Products - Accessories',
+            description: 'Filter by Accessories',
+            path: '/products?category=Accessories',
+            params: []
+          }
         ]
       },
       {
-        method: 'GET',
-        path: '/product/42',
-        operationId: 'getProductById',
-        name: 'getProductById (example: 42)',
-        description: 'Example with numeric ID',
-        params: []
+        name: '📁 Category Endpoints',
+        endpoints: [
+          {
+            name: 'All Categories',
+            description: 'Get all categories',
+            path: '/categories',
+            params: []
+          },
+          {
+            name: 'Category - Electronics',
+            description: 'Get electronics category',
+            path: '/category/cat-electronics',
+            params: []
+          },
+          {
+            name: 'Category - Wearables',
+            description: 'Get wearables category',
+            path: '/category/cat-wearables',
+            params: []
+          },
+          {
+            name: 'Category - Accessories',
+            description: 'Get accessories category',
+            path: '/category/cat-accessories',
+            params: []
+          }
+        ]
       },
       {
-        method: 'GET',
-        path: '/product/xyz',
-        operationId: 'getProductById',
-        name: 'getProductById (example: xyz)',
-        description: 'Example with alphanumeric ID',
-        params: []
+        name: '📋 Documentation',
+        endpoints: [
+          {
+            name: 'OpenAPI Schema (YAML)',
+            description: 'API specification',
+            path: '/openapi.yaml',
+            params: []
+          },
+          {
+            name: 'GraphQL Schema',
+            description: 'GraphQL schema JSON',
+            path: '/graphql/schema.json',
+            params: []
+          },
+          {
+            name: 'GraphQL Endpoint Info',
+            description: 'GraphQL features',
+            path: '/graphql/endpoint.json',
+            params: []
+          }
+        ]
       }
     ];
     
+    let currentEndpoint = null;
+    
     function renderEndpointList() {
-      const endpointList = document.getElementById('endpointList');
-      endpointList.innerHTML = endpoints.map((e, idx) => \`
-        <li class="endpoint-item" onclick="loadEndpoint(\${idx}, event)">
-          <div class="endpoint-name">
-            <span class="method-badge method-get">\${e.method}</span>
-            \${e.path}
-          </div>
-          <div class="endpoint-desc">\${e.description}</div>
-        </li>
+      const container = document.getElementById('endpointCategories');
+      
+      container.innerHTML = endpointCategories.map((category) => \`
+        <div class="endpoint-category">
+          <div class="category-header">\${category.name}</div>
+          <ul class="endpoint-list">
+            \${category.endpoints.map((e, idx) => {
+              const globalIdx = endpointCategories.slice(0, endpointCategories.indexOf(category))
+                .reduce((acc, cat) => acc + cat.endpoints.length, 0) + idx;
+              return \`
+                <li class="endpoint-item" onclick="loadEndpoint(\${globalIdx}, event)">
+                  <div class="endpoint-name">\${e.name}</div>
+                  <div class="endpoint-desc">\${e.description}</div>
+                </li>
+              \`;
+            }).join('')}
+          </ul>
+        </div>
       \`).join('');
     }
     
-    function loadEndpoint(index, evt) {
-      const endpoint = endpoints[index];
-      document.getElementById('methodInput').value = endpoint.method;
-      document.getElementById('pathInput').value = endpoint.path;
+    function getAllEndpoints() {
+      return endpointCategories.flatMap(cat => cat.endpoints);
+    }
+    
+    function loadEndpoint(globalIndex, evt) {
+      const allEndpoints = getAllEndpoints();
+      const endpoint = allEndpoints[globalIndex];
+      currentEndpoint = endpoint;
       
-      // Render parameter inputs
+      // Update URL with endpoint parameter
+      const url = new URL(window.location);
+      url.searchParams.set('endpoint', globalIndex);
+      window.history.pushState({}, '', url);
+      
+      // Update URL display
+      updateUrlDisplay();
+      
+      // Show/hide parameter section
+      const paramSection = document.getElementById('paramSection');
       const paramInputs = document.getElementById('paramInputs');
-      if (endpoint.params.length > 0) {
+      
+      if (endpoint.params && endpoint.params.length > 0) {
+        paramSection.style.display = 'block';
         paramInputs.innerHTML = endpoint.params.map(p => \`
           <div style="margin-bottom: 10px;">
-            <label style="font-size: 12px; color: #666;">\${p.name} - \${p.description}</label>
+            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 4px;">
+              \${p.name} (e.g., \${p.example})
+            </label>
             <input type="text" id="param_\${p.name}" placeholder="\${p.example}" 
-              onkeyup="updatePath()" style="margin-top: 4px;" />
+              value="\${p.example}" onkeyup="updateUrlDisplay()" />
           </div>
         \`).join('');
       } else {
-        paramInputs.innerHTML = '<p style="font-size: 13px; color: #999;">No parameters required</p>';
+        paramSection.style.display = 'none';
+        paramInputs.innerHTML = '';
       }
       
       // Update active state
-      document.querySelectorAll('.endpoint-item').forEach(item => {
-        item.classList.remove('active');
+      document.querySelectorAll('.endpoint-item').forEach((item, idx) => {
+        if (idx === globalIndex) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
       });
-      if (evt) {
-        evt.target.closest('.endpoint-item').classList.add('active');
-      }
     }
     
-    function updatePath() {
-      const endpoint = endpoints[document.querySelector('.endpoint-item.active') ? 
-        Array.from(document.querySelectorAll('.endpoint-item')).findIndex(el => el.classList.contains('active')) : 0];
+    function updateUrlDisplay() {
+      if (!currentEndpoint) return;
       
-      if (!endpoint || endpoint.params.length === 0) return;
+      const serverUrl = getServerUrl();
+      let path = currentEndpoint.path;
       
-      let path = endpoint.path;
-      endpoint.params.forEach(p => {
-        const value = document.getElementById('param_' + p.name).value || p.example;
-        path = path.replace('{' + p.name + '}', value);
-      });
-      document.getElementById('pathInput').value = path;
+      // Replace parameters in path
+      if (currentEndpoint.params && currentEndpoint.params.length > 0) {
+        currentEndpoint.params.forEach(p => {
+          const value = document.getElementById('param_' + p.name)?.value || p.example;
+          path = path.replace('{' + p.name + '}', value);
+        });
+      }
+      
+      const fullUrl = serverUrl + path;
+      document.getElementById('urlInput').value = fullUrl;
+    }
+    
+    function getServerUrl() {
+      const serverUrlInput = document.getElementById('serverUrl');
+      return serverUrlInput.value.trim() || '';
     }
     
     function loadPresetUrl() {
@@ -526,47 +492,24 @@ export const restPlaygroundHtml = `
       const serverUrlInput = document.getElementById('serverUrl');
       const selectedValue = presetSelect.value;
       
-      if (selectedValue && selectedValue !== 'custom') {
+      if (selectedValue !== 'custom') {
         serverUrlInput.value = selectedValue;
-        localStorage.setItem('rest-server-url', selectedValue);
+        localStorage.setItem('rest-simple-server-url', selectedValue);
+        updateUrlDisplay();
       } else if (selectedValue === 'custom') {
         serverUrlInput.focus();
       }
     }
     
-    function saveServerUrl() {
-      const serverUrl = document.getElementById('serverUrl').value.trim();
-      if (serverUrl) {
-        localStorage.setItem('rest-server-url', serverUrl);
-        
-        const presetSelect = document.getElementById('serverPresets');
-        let foundPreset = false;
-        for (let option of presetSelect.options) {
-          if (option.value === serverUrl) {
-            presetSelect.value = serverUrl;
-            foundPreset = true;
-            break;
-          }
-        }
-        if (!foundPreset && serverUrl) {
-          presetSelect.value = 'custom';
-        }
-        
-        alert('Server URL saved: ' + serverUrl);
-      } else {
-        localStorage.removeItem('rest-server-url');
-        alert('Server URL cleared. Will use current server.');
-      }
-    }
-    
-    function loadServerUrl() {
-      const savedUrl = localStorage.getItem('rest-server-url');
+    function loadSavedServerUrl() {
+      const savedUrl = localStorage.getItem('rest-simple-server-url');
       const serverUrlInput = document.getElementById('serverUrl');
       const presetSelect = document.getElementById('serverPresets');
       
       if (savedUrl) {
         serverUrlInput.value = savedUrl;
         
+        // Set dropdown to matching preset or "custom"
         let foundPreset = false;
         for (let option of presetSelect.options) {
           if (option.value === savedUrl) {
@@ -575,7 +518,7 @@ export const restPlaygroundHtml = `
             break;
           }
         }
-        if (!foundPreset) {
+        if (!foundPreset && savedUrl) {
           presetSelect.value = 'custom';
         }
       } else {
@@ -584,116 +527,15 @@ export const restPlaygroundHtml = `
       }
     }
     
-    function getServerUrl() {
-      const serverUrlInput = document.getElementById('serverUrl');
-      return serverUrlInput.value.trim() || '';
-    }
-    
-    function addHeaderRow(key = '', value = '') {
-      const container = document.getElementById('headersContainer');
-      const rowId = 'header_' + Date.now();
-      
-      const row = document.createElement('div');
-      row.className = 'header-row';
-      row.id = rowId;
-      row.innerHTML = \`
-        <input type="text" class="header-input" placeholder="Header name (e.g., Authorization)" 
-          value="\${key}" onchange="saveHeaders()" />
-        <input type="text" class="header-input" placeholder="Header value" 
-          value="\${value}" onchange="saveHeaders()" />
-        <button class="btn-small" onclick="removeHeaderRow('\${rowId}')">Remove</button>
-      \`;
-      
-      container.appendChild(row);
-    }
-    
-    function removeHeaderRow(rowId) {
-      const row = document.getElementById(rowId);
-      if (row) {
-        row.remove();
-        saveHeaders();
-      }
-    }
-    
-    function saveHeaders() {
-      const headers = getHeaders();
-      localStorage.setItem('rest-headers', JSON.stringify(headers));
-    }
-    
-    function getHeaders() {
-      const container = document.getElementById('headersContainer');
-      const rows = container.querySelectorAll('.header-row');
-      const headers = {};
-      
-      rows.forEach(row => {
-        const inputs = row.querySelectorAll('.header-input');
-        const key = inputs[0].value.trim();
-        const value = inputs[1].value.trim();
-        
-        if (key && value) {
-          headers[key] = value;
-        }
-      });
-      
-      return headers;
-    }
-    
-    function loadHeaders() {
-      const saved = localStorage.getItem('rest-headers');
-      if (saved) {
-        try {
-          const headers = JSON.parse(saved);
-          Object.entries(headers).forEach(([key, value]) => {
-            addHeaderRow(key, value);
-          });
-        } catch (e) {
-          console.error('Failed to load headers:', e);
-        }
-      }
-    }
-    
-    function displayResponseHeaders(response) {
-      const headersContainer = document.getElementById('responseHeaders');
-      const headers = {};
-      
-      // Extract all headers
-      response.headers.forEach((value, key) => {
-        headers[key] = value;
-      });
-      
-      // Check if there are any headers
-      if (Object.keys(headers).length === 0) {
-        headersContainer.innerHTML = '<div class="no-headers">No response headers</div>';
-        return;
-      }
-      
-      // Build table HTML
-      let tableHtml = '<table class="headers-table"><thead><tr><th>Header</th><th>Value</th></tr></thead><tbody>';
-      
-      for (const [key, value] of Object.entries(headers)) {
-        tableHtml += \`
-          <tr>
-            <td class="header-key">\${key}</td>
-            <td class="header-value">\${value}</td>
-          </tr>
-        \`;
-      }
-      
-      tableHtml += '</tbody></table>';
-      headersContainer.innerHTML = tableHtml;
-    }
-    
     async function executeRequest() {
-      const method = document.getElementById('methodInput').value;
-      const path = document.getElementById('pathInput').value;
+      const url = document.getElementById('urlInput').value;
       const responseDiv = document.getElementById('response');
       const statusCodeEl = document.getElementById('statusCode');
       const responseTimeEl = document.getElementById('responseTime');
-      const headersContainer = document.getElementById('responseHeaders');
       
-      if (!path.trim()) {
+      if (!url.trim()) {
         responseDiv.className = 'response error';
-        responseDiv.textContent = 'Please enter an endpoint path';
+        responseDiv.textContent = 'Please select an endpoint';
         return;
       }
       
@@ -701,87 +543,65 @@ export const restPlaygroundHtml = `
       responseDiv.textContent = 'Sending request...';
       statusCodeEl.textContent = '-';
       responseTimeEl.textContent = '-';
-      headersContainer.innerHTML = '<div class="no-headers">Loading...</div>';
       
       try {
-        const serverUrl = getServerUrl();
-        const fullUrl = serverUrl + path;
-        
-        const headers = getHeaders();
-        
         const startTime = Date.now();
-        const response = await fetch(fullUrl, {
-          method: method,
-          headers: headers
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
         });
         const endTime = Date.now();
-        
-        const data = await response.json();
         
         statusCodeEl.textContent = response.status + ' ' + response.statusText;
         responseTimeEl.textContent = (endTime - startTime) + 'ms';
         
-        // Display response headers
-        displayResponseHeaders(response);
+        // Try to parse as JSON
+        const contentType = response.headers.get('content-type');
+        let data;
+        
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+          responseDiv.textContent = JSON.stringify(data, null, 2);
+        } else {
+          data = await response.text();
+          responseDiv.textContent = data;
+        }
         
         if (response.ok) {
           responseDiv.className = 'response success';
-          responseDiv.textContent = JSON.stringify(data, null, 2);
         } else {
           responseDiv.className = 'response error';
-          responseDiv.textContent = JSON.stringify(data, null, 2);
         }
       } catch (error) {
         responseDiv.className = 'response error';
         responseDiv.textContent = 'Error: ' + error.message;
         statusCodeEl.textContent = 'Error';
         responseTimeEl.textContent = '-';
-        headersContainer.innerHTML = '<div class="no-headers">Error fetching headers</div>';
       }
     }
     
-    function clearRequest() {
-      document.getElementById('pathInput').value = '';
-      document.getElementById('paramInputs').innerHTML = '';
+    function clearResponse() {
       document.getElementById('response').className = 'response';
       document.getElementById('response').textContent = 'Response will appear here...';
       document.getElementById('statusCode').textContent = '-';
       document.getElementById('responseTime').textContent = '-';
-      document.getElementById('responseHeaders').innerHTML = '<div class="no-headers">No headers yet. Send a request to see response headers.</div>';
-      document.querySelectorAll('.endpoint-item').forEach(item => {
-        item.classList.remove('active');
-      });
     }
     
-    function copyRequest() {
-      const serverUrl = getServerUrl();
-      const path = document.getElementById('pathInput').value;
-      const fullUrl = serverUrl + path;
-      const btn = document.getElementById('copyRequestBtn');
+    function copyUrl() {
+      const url = document.getElementById('urlInput').value;
+      const btn = document.getElementById('copyUrlBtn');
       
-      navigator.clipboard.writeText(fullUrl).then(() => {
-        // Show success feedback
+      navigator.clipboard.writeText(url).then(() => {
         btn.classList.add('copied');
-        btn.innerHTML = \`
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          Copied!
-        \`;
-        
-        // Reset after 2 seconds
+        btn.textContent = 'Copied!';
         setTimeout(() => {
           btn.classList.remove('copied');
-          btn.innerHTML = \`
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-            </svg>
-            Copy URL
-          \`;
+          btn.textContent = 'Copy URL';
         }, 2000);
       }).catch(err => {
         console.error('Failed to copy:', err);
-        alert('Failed to copy to clipboard');
       });
     }
     
@@ -790,38 +610,59 @@ export const restPlaygroundHtml = `
       const btn = document.getElementById('copyResponseBtn');
       
       navigator.clipboard.writeText(response).then(() => {
-        // Show success feedback
         btn.classList.add('copied');
-        btn.innerHTML = \`
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          Copied!
-        \`;
-        
-        // Reset after 2 seconds
+        btn.textContent = 'Copied!';
         setTimeout(() => {
           btn.classList.remove('copied');
-          btn.innerHTML = \`
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-            </svg>
-            Copy Response
-          \`;
+          btn.textContent = 'Copy Response';
         }, 2000);
       }).catch(err => {
         console.error('Failed to copy:', err);
-        alert('Failed to copy to clipboard');
       });
     }
     
     // Initialize
     renderEndpointList();
-    loadEndpoint(0);
-    loadServerUrl();
-    loadHeaders();
+    loadSavedServerUrl();
+    
+    // Check URL parameters for initial endpoint load
+    const urlParams = new URLSearchParams(window.location.search);
+    const endpointParam = urlParams.get('endpoint');
+    
+    if (endpointParam !== null) {
+      const endpointIdx = parseInt(endpointParam);
+      const allEndpoints = getAllEndpoints();
+      
+      if (endpointIdx >= 0 && endpointIdx < allEndpoints.length) {
+        loadEndpoint(endpointIdx);
+      } else {
+        loadEndpoint(0);
+      }
+    } else {
+      loadEndpoint(0);
+    }
+    
+    // Save server URL on change
+    document.getElementById('serverUrl').addEventListener('change', function() {
+      const presetSelect = document.getElementById('serverPresets');
+      localStorage.setItem('rest-simple-server-url', this.value);
+      
+      // Update preset dropdown if it matches a preset
+      let foundPreset = false;
+      for (let option of presetSelect.options) {
+        if (option.value === this.value) {
+          presetSelect.value = this.value;
+          foundPreset = true;
+          break;
+        }
+      }
+      if (!foundPreset && this.value) {
+        presetSelect.value = 'custom';
+      }
+      
+      updateUrlDisplay();
+    });
   </script>
 </body>
 </html>
 `
-
