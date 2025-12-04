@@ -1,12 +1,12 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { productTemplates, users, products, categories, cities, persons, companies, awards, adventures } from './data'
+import { countries } from './pylon-native'
 import { homePageHtml } from './pages/home'
 import { restPlaygroundHtml } from './pages/rest-playground'
 import { graphqlPlaygroundHtml } from './pages/graphql-playground'
 import { graphqlSimplePlaygroundHtml } from './pages/graphql-simple'
 import { openapiYaml } from './schemas/openapi'
-import { countriesSchema } from './schemas/countries'
 
 const app = new Hono()
 
@@ -164,9 +164,35 @@ app.get('/graphql/schema', (c) => {
   return c.json(graphqlSchema)
 })
 
-// Countries GraphQL Schema endpoint
-app.get('/graphql/countries-schema.json', (c) => {
-  return c.json(countriesSchema)
+// Countries GraphQL Schema endpoint - proxies to external API
+app.get('/graphql/countries-schema.json', async (c) => {
+  try {
+    const response = await fetch('https://countries.trevorblades.com/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `query IntrospectionQuery {
+          __schema {
+            queryType { name }
+            types {
+              kind
+              name
+              description
+              fields(includeDeprecated: true) {
+                name
+                description
+                type { name kind }
+              }
+            }
+          }
+        }`
+      })
+    })
+    const data = await response.json()
+    return c.json(data)
+  } catch (error) {
+    return c.json({ error: 'Failed to fetch countries schema' }, 500)
+  }
 })
 
 // GraphQL endpoint info (lists available queries)
@@ -612,6 +638,16 @@ function executeGraphQLQuery(query: string, batchMode: boolean = false) {
       data.adventurePaginated = graphqlApp.Query.adventurePaginated(first, after)
     }
     
+    // Country queries
+    if (cleanQuery.match(/\bcountries\s*[\s{]/)) {
+      data.countries = graphqlApp.Query.countries()
+    }
+    
+    const countryMatch = cleanQuery.match(/\bcountry\s*\(\s*code:\s*"([^"]+)"\s*\)/)
+    if (countryMatch) {
+      data.country = graphqlApp.Query.country(countryMatch[1])
+    }
+    
     // Apply batch prefix if batch mode is enabled
     const finalData = batchMode ? applyBatchPrefix(data) : data
     
@@ -738,6 +774,15 @@ export const graphqlApp = {
     
     adventurePaginated: (first?: number, after?: string) => {
       return applyCursorPagination(adventures, first, after)
+    },
+    
+    // Country queries
+    countries: () => {
+      return countries
+    },
+    
+    country: (code: string) => {
+      return countries.find(c => c.code === code) || null
     }
   }
 }

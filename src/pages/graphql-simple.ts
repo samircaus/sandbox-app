@@ -327,15 +327,16 @@ export const graphqlSimplePlaygroundHtml = `
         ]
       },
       {
-        name: '🌍 Countries API',
+        name: '🌍 Countries (Local)',
         queries: [
           {
             name: 'All Countries',
-            description: 'Get all countries',
+            description: 'Get all countries from local API',
             query: \`query {
   countries {
     code
     name
+    description
     capital
     currency
     emoji
@@ -344,59 +345,43 @@ export const graphqlSimplePlaygroundHtml = `
           },
           {
             name: 'Country by Code',
-            description: 'Get specific country (US)',
+            description: 'Get country description (US)',
             query: \`query {
   country(code: "US") {
     code
     name
-    native
+    description
     capital
-    emoji
     currency
-    languages {
-      code
-      name
-    }
+    emoji
   }
 }\`
           },
           {
-            name: 'Countries with Languages',
-            description: 'Get countries with languages',
+            name: 'Country - Germany',
+            description: 'Get Germany info',
             query: \`query {
-  countries {
-    name
-    code
-    languages {
-      code
-      name
-      native
-    }
-  }
-}\`
-          },
-          {
-            name: 'All Continents',
-            description: 'Get all continents',
-            query: \`query {
-  continents {
+  country(code: "DE") {
     code
     name
+    description
+    capital
+    currency
+    emoji
   }
 }\`
           },
           {
-            name: 'Continent with Countries',
-            description: 'Europe with all countries',
+            name: 'Country - Japan',
+            description: 'Get Japan info',
             query: \`query {
-  continent(code: "EU") {
+  country(code: "JP") {
+    code
     name
-    countries {
-      code
-      name
-      capital
-      currency
-    }
+    description
+    capital
+    currency
+    emoji
   }
 }\`
           }

@@ -95,6 +95,15 @@ export interface Adventure {
   price?: number
 }
 
+export interface Country {
+  code: string
+  name: string
+  description: string
+  capital?: string
+  currency?: string
+  emoji?: string
+}
+
 // Sample data
 const users: User[] = [
   { id: '1', name: 'John Doe', email: 'john@example.com', role: 'admin' },
@@ -220,6 +229,73 @@ const cities: City[] = [
   }
 ]
 
+export const countries: Country[] = [
+  {
+    code: 'US',
+    name: 'United States',
+    description: 'The United States of America is a federal republic consisting of 50 states. Known for its diverse geography, economy, and culture.',
+    capital: 'Washington, D.C.',
+    currency: 'USD',
+    emoji: '🇺🇸'
+  },
+  {
+    code: 'GB',
+    name: 'United Kingdom',
+    description: 'The United Kingdom is a sovereign country consisting of England, Scotland, Wales, and Northern Ireland. Rich in history and cultural heritage.',
+    capital: 'London',
+    currency: 'GBP',
+    emoji: '🇬🇧'
+  },
+  {
+    code: 'DE',
+    name: 'Germany',
+    description: 'Germany is a Central European country known for its history, engineering excellence, and contributions to arts and philosophy.',
+    capital: 'Berlin',
+    currency: 'EUR',
+    emoji: '🇩🇪'
+  },
+  {
+    code: 'FR',
+    name: 'France',
+    description: 'France is a Western European nation celebrated for its art, cuisine, wine, and iconic landmarks like the Eiffel Tower.',
+    capital: 'Paris',
+    currency: 'EUR',
+    emoji: '🇫🇷'
+  },
+  {
+    code: 'JP',
+    name: 'Japan',
+    description: 'Japan is an island nation in East Asia known for its blend of ancient traditions and cutting-edge technology.',
+    capital: 'Tokyo',
+    currency: 'JPY',
+    emoji: '🇯🇵'
+  },
+  {
+    code: 'CA',
+    name: 'Canada',
+    description: 'Canada is the second-largest country by land area, known for its natural beauty, multiculturalism, and high quality of life.',
+    capital: 'Ottawa',
+    currency: 'CAD',
+    emoji: '🇨🇦'
+  },
+  {
+    code: 'AU',
+    name: 'Australia',
+    description: 'Australia is a country and continent surrounded by the Indian and Pacific oceans, famous for unique wildlife and natural wonders.',
+    capital: 'Canberra',
+    currency: 'AUD',
+    emoji: '🇦🇺'
+  },
+  {
+    code: 'CH',
+    name: 'Switzerland',
+    description: 'Switzerland is a mountainous Central European country known for its neutrality, banking sector, and premium chocolates.',
+    capital: 'Bern',
+    currency: 'CHF',
+    emoji: '🇨🇭'
+  }
+]
+
 /**
  * GraphQL Resolvers
  * 
@@ -292,6 +368,20 @@ export const graphql = {
      */
     cityByPath: (_path: string): City | null => {
       return cities.find(c => c._path === _path) || null
+    },
+
+    /**
+     * Get all countries
+     */
+    countries: (): Country[] => {
+      return countries
+    },
+
+    /**
+     * Get country by code (e.g., "US", "GB", "DE")
+     */
+    country: (code: string): Country | null => {
+      return countries.find(c => c.code === code) || null
     }
   },
 

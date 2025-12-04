@@ -80,10 +80,10 @@ export const homePageHtml = `
   
   <div class="product-links">
     <p><strong>🌍 GraphQL Countries Examples:</strong></p>
-    <a href="/gql?category=1&query=0">→ All Countries Query</a>
-    <a href="/gql?category=1&query=1">→ Country by Code (US)</a>
-    <a href="/gql?category=1&query=2">→ Countries with Languages</a>
-    <a href="/gql?category=1&query=4">→ Continent with Countries (Europe)</a>
+    <a href="/gql?category=1&query=0">→ All Countries (with descriptions)</a>
+    <a href="/gql?category=1&query=1">→ Country by Code - US</a>
+    <a href="/gql?category=1&query=2">→ Country by Code - Germany</a>
+    <a href="/gql?category=1&query=3">→ Country by Code - Japan</a>
   </div>
   </div>
 </body>
