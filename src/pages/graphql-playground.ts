@@ -388,6 +388,7 @@ export const graphqlPlaygroundHtml = `
                 <option value="/graphql">(relative): /graphql</option>
                 <option value="http://localhost:9000/graphql">localhost:9000</option>
                 <option value="https://sandbox.samircaus.workers.dev/graphql">sandbox.samircaus.workers.dev/graphql</option>
+                <option value="https://countries.trevorblades.com/graphql">Countries API (trevorblades.com)</option>
                 <option value="https://edge-sandbox-graph.adobe.io/api/28492762-049d-4c0d-8f4a-e0b17d988d40/graphql">Adobe GraphQL Mesh Sandbox</option>
                 <option value="custom">Custom URL...</option>
               </select>
