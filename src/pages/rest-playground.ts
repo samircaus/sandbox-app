@@ -384,6 +384,12 @@ export const restPlaygroundHtml = `
             params: []
           },
           {
+            name: 'Countries GraphQL Schema',
+            description: 'Countries API schema',
+            path: '/graphql/countries-schema.json',
+            params: []
+          },
+          {
             name: 'GraphQL Endpoint Info',
             description: 'GraphQL features',
             path: '/graphql/endpoint.json',

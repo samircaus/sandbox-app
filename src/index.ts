@@ -6,6 +6,7 @@ import { restPlaygroundHtml } from './pages/rest-playground'
 import { graphqlPlaygroundHtml } from './pages/graphql-playground'
 import { graphqlSimplePlaygroundHtml } from './pages/graphql-simple'
 import { openapiYaml } from './schemas/openapi'
+import { countriesSchema } from './schemas/countries'
 
 const app = new Hono()
 
@@ -161,6 +162,11 @@ app.get('/graphql/schema.json', (c) => {
 
 app.get('/graphql/schema', (c) => {
   return c.json(graphqlSchema)
+})
+
+// Countries GraphQL Schema endpoint
+app.get('/graphql/countries-schema.json', (c) => {
+  return c.json(countriesSchema)
 })
 
 // GraphQL endpoint info (lists available queries)

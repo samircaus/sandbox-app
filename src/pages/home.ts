@@ -57,6 +57,7 @@ export const homePageHtml = `
     <p><strong>📋 API Documentation:</strong></p>
     <a href="/openapi.yaml" target="_blank">→ OpenAPI Schema (YAML)</a>
     <a href="/graphql/schema.json" target="_blank">→ GraphQL Schema (JSON)</a>
+    <a href="/graphql/countries-schema.json" target="_blank">→ Countries GraphQL Schema (JSON)</a>
     <a href="/graphql/endpoint.json" target="_blank">→ GraphQL Endpoint Info (JSON)</a>
   </div>
   
