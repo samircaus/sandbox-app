@@ -340,6 +340,110 @@ function applyBatchPrefix(data: any): any {
   return prefixedData
 }
 
+// GraphQL field parser to extract alias and field name
+// Handles patterns like: "aliasName: fieldName", "fieldName", "__typename"
+interface ParsedField {
+  alias: string | null
+  fieldName: string
+  fullMatch: string
+  args?: string
+}
+
+function parseGraphQLFields(query: string): ParsedField[] {
+  const fields: ParsedField[] = []
+  
+  // Remove query wrapper, comments, and normalize whitespace
+  const cleanQuery = query
+    .replace(/query\s+\w*\s*{/, '{')
+    .replace(/#[^\n]*/g, '') // Remove comments
+    .trim()
+  
+  // Match field selections with optional aliases
+  // Pattern: (alias:)? fieldName (arguments)? { or whitespace
+  const fieldPattern = /(\w+)\s*:\s*(\w+)(?:\s*\([^)]*\))?|(\w+)(?:\s*(\([^)]*\)))?(?=\s*[{\s,])/g
+  
+  let match
+  while ((match = fieldPattern.exec(cleanQuery)) !== null) {
+    if (match[1] && match[2]) {
+      // Has alias: "aliasName: fieldName"
+      fields.push({
+        alias: match[1],
+        fieldName: match[2],
+        fullMatch: match[0],
+        args: undefined
+      })
+    } else if (match[3]) {
+      // No alias: "fieldName"
+      fields.push({
+        alias: null,
+        fieldName: match[3],
+        fullMatch: match[0],
+        args: match[4] || undefined
+      })
+    }
+  }
+  
+  return fields
+}
+
+// Helper to resolve __typename for different types
+function resolveTypename(typeName: string): string {
+  // Map of type names
+  const typeMap: Record<string, string> = {
+    'Query': 'Query',
+    'User': 'User',
+    'Product': 'Product',
+    'Category': 'Category',
+    'City': 'City',
+    'Person': 'Person',
+    'Company': 'Company',
+    'Award': 'Award',
+    'Adventure': 'Adventure',
+    'Country': 'Country',
+    'Language': 'Language',
+    'CityResults': 'CityResults',
+    'CityItem': 'CityItem',
+    'PersonResults': 'PersonResults',
+    'PersonItem': 'PersonItem',
+    'CompanyResults': 'CompanyResults',
+    'AwardResults': 'AwardResults',
+    'AdventureResults': 'AdventureResults',
+    'AdventureItem': 'AdventureItem',
+    'AdventurePaginated': 'AdventurePaginated',
+    'AdventureEdge': 'AdventureEdge',
+    'PageInfo': 'PageInfo',
+    'ProductSpecifications': 'ProductSpecifications',
+    'Metadata': 'Metadata',
+    'MetadataItem': 'MetadataItem'
+  }
+  
+  return typeMap[typeName] || typeName
+}
+
+// Helper function to add __typename to objects based on query
+function addTypenameToObject(obj: any, typename: string, query: string): any {
+  if (!obj || typeof obj !== 'object') {
+    return obj
+  }
+  
+  // Check if __typename was requested in the query for this level
+  // Look for __typename in the current selection set
+  if (query.includes('__typename')) {
+    return { __typename: typename, ...obj }
+  }
+  
+  return obj
+}
+
+// Helper function to add __typename to arrays of objects
+function addTypenameToArray(arr: any[], typename: string, query: string): any[] {
+  if (!Array.isArray(arr)) {
+    return arr
+  }
+  
+  return arr.map(item => addTypenameToObject(item, typename, query))
+}
+
 // Advanced GraphQL query executor with filtering and pagination
 // batchMode: if true, automatically prefixes all root fields with _0_, _1_, _2_, etc.
 function executeGraphQLQuery(query: string, batchMode: boolean = false) {
@@ -352,65 +456,107 @@ function executeGraphQLQuery(query: string, batchMode: boolean = false) {
       return { data: graphqlSchema }
     }
     
-    // Handle __type introspection (no prefix for introspection)
+    // Handle __type introspection (no prefix for introspection, but respect aliases)
     if (query.includes('__type')) {
+      const fields = parseGraphQLFields(query)
+      const typeField = fields.find(f => f.fieldName === '__type')
+      
       const typeMatch = query.match(/__type\s*\(\s*name:\s*"([^"]+)"\s*\)/)
       if (typeMatch) {
         const typeName = typeMatch[1]
         const type = graphqlSchema.__schema.types.find((t: any) => t.name === typeName)
-        return { data: { __type: type || null } }
+        const responseKey = typeField?.alias || '__type'
+        return { data: { [responseKey]: type || null } }
       }
     }
+    
+    // Parse all fields with aliases from the query
+    const fields = parseGraphQLFields(query)
     
     // Collect all query results
     const data: any = {}
     
+    // Handle __typename at root Query level
+    const typenameField = fields.find(f => f.fieldName === '__typename')
+    if (typenameField) {
+      const responseKey = typenameField.alias || '__typename'
+      data[responseKey] = 'Query'
+    }
+    
     // Check for hello
-    if (cleanQuery.includes('hello')) {
-      data.hello = graphqlApp.Query.hello()
+    const helloField = fields.find(f => f.fieldName === 'hello')
+    if (helloField) {
+      const responseKey = helloField.alias || 'hello'
+      data[responseKey] = graphqlApp.Query.hello()
     }
     
     // Check for users query
-    if (cleanQuery.match(/users\s*[{(]/)) {
-      data.users = graphqlApp.Query.users()
+    const usersField = fields.find(f => f.fieldName === 'users')
+    if (usersField) {
+      const responseKey = usersField.alias || 'users'
+      const result = graphqlApp.Query.users()
+      data[responseKey] = query.includes('__typename') ? addTypenameToArray(result, 'User', query) : result
     }
     
     // Check for single user query
-    const userMatch = cleanQuery.match(/user\s*\(\s*id:\s*"([^"]+)"\s*\)/)
-    if (userMatch) {
-      const userId = userMatch[1]
-      data.user = graphqlApp.Query.user(userId)
+    const userField = fields.find(f => f.fieldName === 'user')
+    if (userField) {
+      const userMatch = cleanQuery.match(/user\s*\(\s*id:\s*"([^"]+)"\s*\)/)
+      if (userMatch) {
+        const userId = userMatch[1]
+        const responseKey = userField.alias || 'user'
+        const result = graphqlApp.Query.user(userId)
+        data[responseKey] = result ? addTypenameToObject(result, 'User', query) : result
+      }
     }
     
     // Check for products query with optional category
-    // Updated pattern to handle both with and without spaces/newlines
-    const productsMatch = cleanQuery.match(/\bproducts\s*(?:\(\s*category:\s*"(\w+)"\s*\))?[\s{]/)
-    if (productsMatch) {
-      const category = productsMatch[1]
-      data.products = graphqlApp.Query.products(category)
+    const productsField = fields.find(f => f.fieldName === 'products')
+    if (productsField) {
+      const productsMatch = cleanQuery.match(/\bproducts\s*(?:\(\s*category:\s*"(\w+)"\s*\))?[\s{]/)
+      if (productsMatch) {
+        const category = productsMatch[1]
+        const responseKey = productsField.alias || 'products'
+        const result = graphqlApp.Query.products(category)
+        data[responseKey] = query.includes('__typename') ? addTypenameToArray(result, 'Product', query) : result
+      }
     }
     
     // Check for single product query (getProductById)
-    const productMatch = cleanQuery.match(/\bgetProductById\s*\(\s*id:\s*"([^"]+)"\s*\)/)
-    if (productMatch) {
-      const productId = productMatch[1]
-      data.getProductById = graphqlApp.Query.getProductById(productId)
+    const productField = fields.find(f => f.fieldName === 'getProductById')
+    if (productField) {
+      const productMatch = cleanQuery.match(/\bgetProductById\s*\(\s*id:\s*"([^"]+)"\s*\)/)
+      if (productMatch) {
+        const productId = productMatch[1]
+        const responseKey = productField.alias || 'getProductById'
+        const result = graphqlApp.Query.getProductById(productId)
+        data[responseKey] = result ? addTypenameToObject(result, 'Product', query) : result
+      }
     }
     
     // Check for categories query
-    if (cleanQuery.match(/\bcategories\s*[\s{]/)) {
-      data.categories = graphqlApp.Query.categories()
+    const categoriesField = fields.find(f => f.fieldName === 'categories')
+    if (categoriesField) {
+      const responseKey = categoriesField.alias || 'categories'
+      const result = graphqlApp.Query.categories()
+      data[responseKey] = query.includes('__typename') ? addTypenameToArray(result, 'Category', query) : result
     }
     
     // Check for single category query (getCategoryById)
-    const categoryMatch = cleanQuery.match(/\bgetCategoryById\s*\(\s*id:\s*"([^"]+)"\s*\)/)
-    if (categoryMatch) {
-      const categoryId = categoryMatch[1]
-      data.getCategoryById = graphqlApp.Query.getCategoryById(categoryId)
+    const categoryField = fields.find(f => f.fieldName === 'getCategoryById')
+    if (categoryField) {
+      const categoryMatch = cleanQuery.match(/\bgetCategoryById\s*\(\s*id:\s*"([^"]+)"\s*\)/)
+      if (categoryMatch) {
+        const categoryId = categoryMatch[1]
+        const responseKey = categoryField.alias || 'getCategoryById'
+        const result = graphqlApp.Query.getCategoryById(categoryId)
+        data[responseKey] = result ? addTypenameToObject(result, 'Category', query) : result
+      }
     }
     
     // NEW: City queries
-    if (cleanQuery.includes('cityList')) {
+    const cityListField = fields.find(f => f.fieldName === 'cityList')
+    if (cityListField) {
       const offsetMatch = cleanQuery.match(/offset:\s*(\d+)/)
       const limitMatch = cleanQuery.match(/limit:\s*(\d+)/)
       const offset = offsetMatch ? parseInt(offsetMatch[1]) : undefined
@@ -499,17 +645,23 @@ function executeGraphQLQuery(query: string, batchMode: boolean = false) {
         }
       }
       
-      data.cityList = graphqlApp.Query.cityList(filters, offset, limit)
+      const responseKey = cityListField.alias || 'cityList'
+      data[responseKey] = graphqlApp.Query.cityList(filters, offset, limit)
     }
     
     // City by path
-    const cityByPathMatch = cleanQuery.match(/cityByPath\s*\(\s*_path:\s*"([^"]+)"\s*\)/)
-    if (cityByPathMatch) {
-      data.cityByPath = graphqlApp.Query.cityByPath(cityByPathMatch[1])
+    const cityByPathField = fields.find(f => f.fieldName === 'cityByPath')
+    if (cityByPathField) {
+      const cityByPathMatch = cleanQuery.match(/cityByPath\s*\(\s*_path:\s*"([^"]+)"\s*\)/)
+      if (cityByPathMatch) {
+        const responseKey = cityByPathField.alias || 'cityByPath'
+        data[responseKey] = graphqlApp.Query.cityByPath(cityByPathMatch[1])
+      }
     }
     
     // Person queries
-    if (cleanQuery.includes('personList')) {
+    const personListField = fields.find(f => f.fieldName === 'personList')
+    if (personListField) {
       let filters: any = {}
       if (cleanQuery.includes('filter:')) {
         // Parse name filters for persons
@@ -533,16 +685,22 @@ function executeGraphQLQuery(query: string, batchMode: boolean = false) {
         }
       }
       
-      data.personList = graphqlApp.Query.personList(filters)
+      const responseKey = personListField.alias || 'personList'
+      data[responseKey] = graphqlApp.Query.personList(filters)
     }
     
-    const personByPathMatch = cleanQuery.match(/personByPath\s*\(\s*_path:\s*"([^"]+)"\s*\)/)
-    if (personByPathMatch) {
-      data.personByPath = graphqlApp.Query.personByPath(personByPathMatch[1])
+    const personByPathField = fields.find(f => f.fieldName === 'personByPath')
+    if (personByPathField) {
+      const personByPathMatch = cleanQuery.match(/personByPath\s*\(\s*_path:\s*"([^"]+)"\s*\)/)
+      if (personByPathMatch) {
+        const responseKey = personByPathField.alias || 'personByPath'
+        data[responseKey] = graphqlApp.Query.personByPath(personByPathMatch[1])
+      }
     }
     
     // Company queries
-    if (cleanQuery.includes('companyList')) {
+    const companyListField = fields.find(f => f.fieldName === 'companyList')
+    if (companyListField) {
       let filters: any = {}
       if (cleanQuery.includes('filter:')) {
         // Parse nested employee filters
@@ -583,11 +741,13 @@ function executeGraphQLQuery(query: string, batchMode: boolean = false) {
         }
       }
       
-      data.companyList = graphqlApp.Query.companyList(filters)
+      const responseKey = companyListField.alias || 'companyList'
+      data[responseKey] = graphqlApp.Query.companyList(filters)
     }
     
     // Award queries
-    if (cleanQuery.includes('awardList')) {
+    const awardListField = fields.find(f => f.fieldName === 'awardList')
+    if (awardListField) {
       let filters: any = {}
       if (cleanQuery.includes('filter:')) {
         const idMatch = cleanQuery.match(/id:\s*{[^}]*value:\s*"([^"]+)"/)
@@ -598,11 +758,13 @@ function executeGraphQLQuery(query: string, batchMode: boolean = false) {
         }
       }
       
-      data.awardList = graphqlApp.Query.awardList(filters)
+      const responseKey = awardListField.alias || 'awardList'
+      data[responseKey] = graphqlApp.Query.awardList(filters)
     }
     
     // Adventure queries
-    if (cleanQuery.includes('adventureList')) {
+    const adventureListField = fields.find(f => f.fieldName === 'adventureList')
+    if (adventureListField) {
       let filters: any = {}
       if (cleanQuery.includes('filter:')) {
         // Parse _path STARTS_WITH filter
@@ -620,32 +782,47 @@ function executeGraphQLQuery(query: string, batchMode: boolean = false) {
         }
       }
       
-      data.adventureList = graphqlApp.Query.adventureList(filters)
+      const responseKey = adventureListField.alias || 'adventureList'
+      data[responseKey] = graphqlApp.Query.adventureList(filters)
     }
     
-    const adventureByPathMatch = cleanQuery.match(/adventureByPath\s*\(\s*_path:\s*"([^"]+)"\s*\)/)
-    if (adventureByPathMatch) {
-      data.adventureByPath = graphqlApp.Query.adventureByPath(adventureByPathMatch[1])
+    const adventureByPathField = fields.find(f => f.fieldName === 'adventureByPath')
+    if (adventureByPathField) {
+      const adventureByPathMatch = cleanQuery.match(/adventureByPath\s*\(\s*_path:\s*"([^"]+)"\s*\)/)
+      if (adventureByPathMatch) {
+        const responseKey = adventureByPathField.alias || 'adventureByPath'
+        data[responseKey] = graphqlApp.Query.adventureByPath(adventureByPathMatch[1])
+      }
     }
     
     // Adventure pagination
-    if (cleanQuery.includes('adventurePaginated')) {
+    const adventurePaginatedField = fields.find(f => f.fieldName === 'adventurePaginated')
+    if (adventurePaginatedField) {
       const firstMatch = cleanQuery.match(/first:\s*(\d+)/)
       const afterMatch = cleanQuery.match(/after:\s*"([^"]+)"/)
       const first = firstMatch ? parseInt(firstMatch[1]) : undefined
       const after = afterMatch ? afterMatch[1] : undefined
       
-      data.adventurePaginated = graphqlApp.Query.adventurePaginated(first, after)
+      const responseKey = adventurePaginatedField.alias || 'adventurePaginated'
+      data[responseKey] = graphqlApp.Query.adventurePaginated(first, after)
     }
     
     // Country queries
-    if (cleanQuery.match(/\bcountries\s*[\s{]/)) {
-      data.countries = graphqlApp.Query.countries()
+    const countriesField = fields.find(f => f.fieldName === 'countries')
+    if (countriesField) {
+      const responseKey = countriesField.alias || 'countries'
+      const result = graphqlApp.Query.countries()
+      data[responseKey] = query.includes('__typename') ? addTypenameToArray(result, 'Country', query) : result
     }
     
-    const countryMatch = cleanQuery.match(/\bcountry\s*\(\s*code:\s*"([^"]+)"\s*\)/)
-    if (countryMatch) {
-      data.country = graphqlApp.Query.country(countryMatch[1])
+    const countryField = fields.find(f => f.fieldName === 'country')
+    if (countryField) {
+      const countryMatch = cleanQuery.match(/\bcountry\s*\(\s*code:\s*"([^"]+)"\s*\)/)
+      if (countryMatch) {
+        const responseKey = countryField.alias || 'country'
+        const result = graphqlApp.Query.country(countryMatch[1])
+        data[responseKey] = result ? addTypenameToObject(result, 'Country', query) : result
+      }
     }
     
     // Apply batch prefix if batch mode is enabled
